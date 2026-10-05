@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0a0a0a">
-<title>SPPLab - Performance & Cognitive Studio</title>
+<title>SPPLab - Cognition & Performance Studio</title>
 <style>
 *{box-sizing:border-box;user-select:none;-webkit-user-select:none;touch-action:manipulation}
 html,body{width:100%;height:100%;margin:0;padding:0;background:#0a0a0a;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;overflow:hidden}
@@ -15,7 +15,6 @@ h1{margin:0 0 6px;font-size:clamp(.85rem,3vw,1.1rem);color:#00e5ff;white-space:n
 .demo-field{display:flex;flex-direction:column;align-items:flex-start}
 .demo-field label{font-size:.58rem;color:#00e5ff;margin-bottom:1px;font-weight:bold}
 .demo-field input,.demo-field select{background:#222;color:#fff;border:1px solid #00e5ff;padding:4px 5px;border-radius:4px;font-size:clamp(.65rem,2vw,.75rem);outline:none;user-select:text;-webkit-user-select:text}
-.demo-field input:invalid, .demo-field select:invalid{border-color:#ff1744}
 .panel-row{display:flex;gap:6px;justify-content:center;align-items:center;width:100%}
 #module-select,#mode-select{background:#222;color:#fff;border:1px solid #00e5ff;padding:6px 8px;border-radius:6px;font-size:clamp(.7rem,2.5vw,.85rem);outline:none;min-width:0}
 #module-select{flex:1;max-width:340px}
@@ -89,7 +88,6 @@ button:disabled{background:#333!important;color:#666!important;cursor:not-allowe
 .rp-card td{border-bottom:1px solid #222;padding:3px 4px;vertical-align:top}
 .rp-card td:first-child{color:#999;width:46%}
 .rp-cm{border-left:3px solid;padding:2px 8px;margin:4px 0}
-.rp-tr{color:#b39ddb;font-size:.74rem;margin-top:4px}
 .rp-note{color:#a0a0a0;font-size:.72rem;margin-top:12px;line-height:1.6;background:#111;padding:10px;border-radius:6px;border:1px solid #222}
 @media print{
 html,body{height:auto!important;overflow:visible!important;display:block!important;background:#fff!important}
@@ -106,16 +104,16 @@ body>*:not(#report-overlay){display:none!important}
 <header>
 <h1>SPPLab - Cognition & Performance Studio</h1>
 <div class="demo-bar">
-<div class="demo-field"><label>Katılımcı/Sporcu ID *</label><input type="text" id="athlete-id" value="" placeholder="Örn: ATH-101" maxlength="32" style="width:90px" required></div>
-<div class="demo-field"><label>Yaş *</label><input type="number" id="athlete-age" value="" placeholder="Yaş" min="5" max="99" style="width:45px" required></div>
-<div class="demo-field"><label>Cinsiyet *</label><select id="athlete-gender" style="width:75px" required><option value="">Seçiniz</option><option value="Erkek">Erkek</option><option value="Kadin">Kadın</option><option value="Diger">Diğer</option></select></div>
-<div class="demo-field"><label>Branş *</label><input type="text" id="athlete-sport" value="" placeholder="Örn: Judoka" maxlength="32" style="width:75px" required></div>
-<div class="demo-field"><label>Baskın El *</label><select id="athlete-dominant" style="width:65px" required><option value="">Seçiniz</option><option value="Sag">Sağ</option><option value="Sol">Sol</option><option value="Ambidextrous">Çift</option></select></div>
-<div class="demo-field"><label>Spor Yılı *</label><input type="number" id="athlete-exp" value="" placeholder="Yıl" min="0" max="80" style="width:45px" required></div>
-<div class="demo-field"><label>Eğitim Düzeyi *</label><select id="athlete-edu" style="width:85px" required><option value="">Seçiniz</option><option value="Ilkokul">İlkokul</option><option value="Lise">Lise</option><option value="Lisans">Lisans</option><option value="Lisansustu">Lisansüstü</option></select></div>
-<div class="demo-field"><label>Yarışma Seviyesi *</label><select id="athlete-level" style="width:85px" required><option value="">Seçiniz</option><option value="Amator">Amatör</option><option value="Ulusal">Ulusal</option><option value="Milli_Elit">Milli / Elit</option></select></div>
-<div class="demo-field"><label>Görüş Düzeltme *</label><select id="athlete-vision" style="width:70px" required><option value="">Seçiniz</option><option value="Yok">Yok</option><option value="Gozluk">Gözlük</option><option value="Lens">Lens</option></select></div>
-<div class="demo-field"><label>Kafein/Uyarıcı *</label><select id="athlete-caffeine" style="width:65px" required><option value="">Seçiniz</option><option value="Yok">Yok</option><option value="Var">Var (Son 2s)</option></select></div>
+<div class="demo-field"><label>Katılımcı/Sporcu ID *</label><input type="text" id="athlete-id" value="" placeholder="Örn: ATH-101" maxlength="32" style="width:90px"></div>
+<div class="demo-field"><label>Yaş *</label><input type="number" id="athlete-age" value="" placeholder="Yaş" min="5" max="99" style="width:45px"></div>
+<div class="demo-field"><label>Cinsiyet *</label><select id="athlete-gender" style="width:75px"><option value="">Seçiniz</option><option value="Erkek">Erkek</option><option value="Kadin">Kadın</option><option value="Diger">Diğer</option></select></div>
+<div class="demo-field"><label>Branş *</label><input type="text" id="athlete-sport" value="" placeholder="Örn: Judoka" maxlength="32" style="width:75px"></div>
+<div class="demo-field"><label>Baskın El *</label><select id="athlete-dominant" style="width:65px"><option value="">Seçiniz</option><option value="Sag">Sağ</option><option value="Sol">Sol</option><option value="Ambidextrous">Çift</option></select></div>
+<div class="demo-field"><label>Spor Yılı *</label><input type="number" id="athlete-exp" value="" placeholder="Yıl" min="0" max="80" style="width:45px"></div>
+<div class="demo-field"><label>Eğitim Düzeyi *</label><select id="athlete-edu" style="width:85px"><option value="">Seçiniz</option><option value="Ilkokul">İlkokul</option><option value="Lise">Lise</option><option value="Lisans">Lisans</option><option value="Lisansustu">Lisansüstü</option></select></div>
+<div class="demo-field"><label>Yarışma Seviyesi *</label><select id="athlete-level" style="width:85px"><option value="">Seçiniz</option><option value="Amator">Amatör</option><option value="Ulusal">Ulusal</option><option value="Milli_Elit">Milli / Elit</option></select></div>
+<div class="demo-field"><label>Görüş Düzeltme *</label><select id="athlete-vision" style="width:70px"><option value="">Seçiniz</option><option value="Yok">Yok</option><option value="Gozluk">Gözlük</option><option value="Lens">Lens</option></select></div>
+<div class="demo-field"><label>Kafein/Uyarıcı *</label><select id="athlete-caffeine" style="width:65px"><option value="">Seçiniz</option><option value="Yok">Yok</option><option value="Var">Var (Son 2s)</option></select></div>
 </div>
 <div class="panel-row">
 <select id="module-select">
@@ -195,7 +193,7 @@ body>*:not(#report-overlay){display:none!important}
 <script>
 window.addEventListener('error',function(e){var b=document.getElementById('err-banner');if(b){b.style.display='block';b.textContent='HATA: '+e.message+' (satır '+e.lineno+')';}});
 
-const APP_VERSION="5.0";
+const APP_VERSION="5.1";
 const API_URL="";   
 const API_TOKEN=""; 
 
@@ -209,6 +207,7 @@ const sd=a=>{if(a.length<2)return null;const m=mean(a);return Math.sqrt(a.reduce
 const fmt=v=>v==null?"–":Math.round(v);
 const msSn=ms=>ms+" ms ("+(ms/1000).toFixed(2)+" sn)";
 const accOf=a=>a.length?a.filter(x=>x.correct).length/a.length:0;
+const modeLbl=m=>m==='GUVENILIR'?'Güvenilir Tam Seans':'Hızlı Tarama';
 
 const COLORS={
 red:{hex:'#ff1744',en:'RED',tr:'KIRMIZI',freq:400},
@@ -646,7 +645,7 @@ setup(){
 S.ctx.len=parseInt($('digit-length-select').value)||4;S.ctx.len0=S.ctx.len;
 S.ctx.tries=0;S.ctx.passes=0;S.ctx.dead=false;
 numpadGrid.innerHTML='';
-for(let i=1;i<=9;i++){const b=document.className='num-btn';b.textContent=i;const n=i;b.addEventListener('pointerdown',e=>input('num:'+n,e));numpadGrid.appendChild(b);}
+for(let i=1;i<=9;i++){const b=document.createElement('div');b.className='num-btn';b.textContent=i;const n=i;b.addEventListener('pointerdown',e=>input('num:'+n,e));numpadGrid.appendChild(b);}
 },
 trial(){
 const L=S.ctx.len,seq=[];
@@ -750,7 +749,7 @@ title:"16. Basit Reaksiyon (PVT)",text:"Gri 'BEKLE' dairesi yeşil 'DOKUN!' olun
 eval:"Ölçülen Bilişsel Parametre: Sürdürülen Dikkat ve Uyanıklık (Psychomotor Vigilance Test). Rastgele aralıklarla gelen uyarana verilen basit reaksiyon hızı ile 500 ms üzeri gecikmeleri (Lapse / Dikkat Kaybı) ölçer.",formula:"Puan = Doğruluk×1000 − Ort.RT(ms)×2 − Hata×(200/Deneme sayısı) (alıştırma hariç)",score:scRT(0.5),
 extra:r=>{
 const rts=rtsOf(r),fs=Math.max.apply(null,[0].concat(r.map(x=>exNum(x,'FS')||0)));
-return['Lapse (>500 ms gecikme): '+rts.filter(x=>x>500).length,'Erken basma (Erken Erken Başlatma): '+fs];
+return['Lapse (>500 ms gecikme): '+rts.filter(x=>x>500).length,'Erken basma (Erken Başlatma): '+fs];
 },
 setup(){S.ctx.fs=0;},
 trial(){
@@ -1209,7 +1208,7 @@ h+='<div class="rp-sec"><h4>Öne Çıkan Güçlü Bilişsel Parametreler</h4>'+l
 h+='<div class="rp-sec"><h4>Geliştirilmesi Gereken Bilişsel Parametreler</h4>'+li(R.warn)+'</div>';
 h+='<div class="rp-sec"><h4>Test Bazında Detaylı Psikometrik Analizler</h4>';
 R.tests.forEach(t=>{
-h+='<div class="rp-card"><div class="rp-ct">'+esc(t.title)+'<span>Mod: '+esc(t.mode)+' · Tarih: '+esc(t.date)+'</span></div><table>'+t.M.map(m=>'<tr><td>'+esc(m[0])+'</td><td>'+esc(m[1])+'</td></tr>').join('')+'</table>';
+h+='<div class="rp-card"><div class="rp-ct">'+esc(t.title)+'<span>Mod: '+modeLbl(t.mode)+' · Tarih: '+esc(t.date)+'</span></div><table>'+t.M.map(m=>'<tr><td>'+esc(m[0])+'</td><td>'+esc(m[1])+'</td></tr>').join('')+'</table>';
 h+=t.Cm.map(c=>'<div class="rp-cm" style="border-color:'+AC[c.k]+'">'+esc(c.t)+'</div>').join('');
 h+='</div>';
 });
