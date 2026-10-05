@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<title>SPPLab - Performance & Cognitive Studio</title>
+<style>
+*{box-sizing:border-box;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+html,body{width:100%;height:100%;margin:0;padding:0;background:#0a0a0a;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+#err-banner{display:none;background:#b71c1c;color:#fff;font-size:.7rem;padding:4px 8px;user-select:text;-webkit-user-select:text;flex-shrink:0}
+header{background:#151515;padding:6px 10px;text-align:center;border-bottom:1px solid #333;flex-shrink:0}
+h1{margin:0 0 6px;font-size:clamp(.85rem,3vw,1.1rem);color:#00e5ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.demo-bar{display:flex;gap:4px;justify-content:center;align-items:center;width:100%;flex-wrap:wrap;margin-bottom:6px}
+.demo-field{display:flex;flex-direction:column;align-items:flex-start}
+.demo-field label{font-size:.58rem;color:#00e5ff;margin-bottom:1px;font-weight:bold}
+.demo-field input,.demo-field select{background:#222;color:#fff;border:1px solid #00e5ff;padding:4px 5px;border-radius:4px;font-size:clamp(.65rem,2vw,.75rem);outline:none;user-select:text;-webkit-user-select:text}
+.demo-field input:invalid, .demo-field select:invalid{border-color:#ff1744}
+.panel-row{display:flex;gap:6px;justify-content:center;align-items:center;width:100%}
+#module-select,#mode-select{background:#222;color:#fff;border:1px solid #00e5ff;padding:6px 8px;border-radius:6px;font-size:clamp(.7rem,2.5vw,.85rem);outline:none;min-width:0}
+#module-select{flex:1;max-width:340px}
+#mode-select{flex:0 0 auto;max-width:170px}
+.extra-options{display:none;gap:10px;justify-content:center;align-items:center;margin-top:5px;font-size:.75rem;color:#00e5ff}
+.extra-options select{background:#222;color:#fff;border:1px solid #00e5ff;padding:2px 6px;border-radius:4px}
+.consent-row{margin-top:5px;font-size:.65rem;color:#aaa;display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:wrap}
+#sync-status{color:#888}
+#stats-bar{display:flex;justify-content:space-between;background:#1a1a1a;padding:6px 12px;font-size:clamp(.65rem,2.2vw,.8rem);font-weight:bold;border-bottom:1px solid #333;flex-shrink:0}
+.stat-item span{color:#00e676}
+#game-area{flex:1;position:relative;width:100%;overflow:hidden;background:#0e0e0e;display:flex;justify-content:center;align-items:center;padding:10px}
+#game-area.has-buttons{padding-bottom:90px}
+@keyframes fbok{0%{box-shadow:inset 0 0 0 6px #00e676}100%{box-shadow:inset 0 0 0 0 transparent}}
+@keyframes fbbad{0%{box-shadow:inset 0 0 0 6px #ff1744}100%{box-shadow:inset 0 0 0 0 transparent}}
+#game-area.fb-ok{animation:fbok .4s}
+#game-area.fb-bad{animation:fbbad .4s}
+#instruction-card{position:absolute;width:min(92%,520px);max-height:92%;overflow-y:auto;background:rgba(20,20,20,.98);border:2px solid #00e5ff;padding:16px;border-radius:12px;text-align:left;z-index:1000;user-select:text;-webkit-user-select:text}
+#instruction-card h3{margin-top:0;color:#00e5ff;font-size:clamp(.95rem,3.5vw,1.2rem);text-align:center}
+#instruction-card p{font-size:clamp(.72rem,2.6vw,.85rem);line-height:1.5;color:#ddd;margin-bottom:6px}
+.eval-info{background:#181818;border-left:3px solid #00e5ff;padding:6px 8px;font-size:.72rem;color:#bbb;margin-top:6px}
+.score-info{background:#111;border-left:3px solid #00e676;padding:6px 8px;font-size:.72rem;color:#aaa;margin-top:6px}
+.legs{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;margin-top:6px;font-size:.72rem;background:#111;padding:6px 8px;border-radius:6px}
+.legs div{display:flex;justify-content:space-between;border-bottom:1px solid #222;padding:1px 0}
+.legs .best{color:#00e676;font-weight:bold}
+.legs .worst{color:#ff5252;font-weight:bold}
+#antisaccade-touch-zone{display:none;position:absolute;width:100%;height:100%;top:0;left:0;z-index:50}
+.antisaccade-half{position:absolute;width:50%;height:100%;top:0}
+#antisaccade-left-zone{left:0;border-right:1px dashed rgba(255,255,255,.1)}
+#antisaccade-right-zone{right:0}
+#dual-buttons{display:none;width:calc(100% - 20px);max-width:400px;gap:20px;justify-content:center;z-index:100;position:absolute;bottom:15px}
+.choice-btn{flex:1;padding:16px 0;font-size:1rem;font-weight:bold;border-radius:10px;border:2px solid #fff;text-align:center;color:#fff}
+.btn-left{background:#ff1744}.btn-right{background:#29b6f6}
+#target-circle{position:absolute;transform:translate(-50%,-50%);width:clamp(100px,25vw,140px);height:clamp(100px,25vw,140px);border-radius:50%;background:#000;border:3px solid #fff;display:none;justify-content:center;align-items:center;font-size:clamp(1.2rem,4vw,1.8rem);font-weight:900;text-align:center;padding:8px;z-index:200}
+#target-circle.wide{width:auto;height:auto;min-width:150px;border-radius:18px;padding:14px 22px;letter-spacing:2px;white-space:nowrap}
+#spatial-grid{display:none;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;width:100%;height:100%;max-width:500px;max-height:500px;margin:auto;z-index:100}
+#spatial-grid.compact{height:52%;align-self:flex-end}
+.spatial-btn{border-radius:12px;opacity:.3;transition:opacity .1s;display:flex;justify-content:center;align-items:center;font-size:clamp(1.1rem,4vw,1.6rem);font-weight:900;color:#000;border:2px solid #fff;width:100%;height:100%}
+.spatial-btn.active{opacity:1;box-shadow:0 0 35px #fff;transform:scale(.98)}
+#spatial-grid.all-on .spatial-btn{opacity:1}
+#memory-grid{display:none;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:8px;width:min(70vw,280px);aspect-ratio:1;margin:auto;z-index:100}
+.memory-block{background:#222;border:2px solid #00e5ff;border-radius:8px;width:100%;height:100%}
+.memory-block.lit{background:#00e5ff!important;box-shadow:0 0 25px #00e5ff!important}
+#numpad-grid{display:none;grid-template-columns:repeat(3,1fr);gap:8px;width:min(75vw,260px);margin:auto;z-index:100}
+.num-btn{background:#222;border:1px solid #00e5ff;color:#fff;font-size:1.2rem;font-weight:bold;padding:12px 0;border-radius:6px;text-align:center}
+#trail-area{display:none;position:relative;width:100%;align-self:stretch;flex:1;z-index:100}
+#trail-area svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.trail-node{position:absolute;width:46px;height:46px;border-radius:50%;background:#00e5ff;color:#000;font-weight:900;font-size:1rem;display:flex;justify-content:center;align-items:center;border:2px solid #fff;z-index:2}
+.trail-node.done{background:#00e676;opacity:.35}
+#cv{display:none;position:absolute;top:0;left:0;width:100%;height:100%;z-index:100;touch-action:none}
+#controls{padding:8px 10px;background:#151515;display:flex;gap:6px;justify-content:center;flex-shrink:0;border-top:1px solid #333;width:100%}
+button{flex:1;max-width:140px;min-height:44px;padding:10px 0;font-size:clamp(.68rem,2.4vw,.9rem);font-weight:bold;border:none;border-radius:6px;cursor:pointer;color:#fff}
+.btn-start{background:#00c853}.btn-stop{background:#d50000}.btn-export{background:#0288d1}.btn-report{background:#6a1b9a}.btn-mute{background:#444;max-width:80px}
+button:disabled{background:#333!important;color:#666!important;cursor:not-allowed}
+#report-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:5000;background:#0a0a0a;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#report-overlay.open{display:block}
+#report-overlay *{user-select:text;-webkit-user-select:text}
+#report-bar{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;gap:6px;background:#151515;border-bottom:1px solid #333;padding:6px 10px;z-index:2}
+#report-bar b{color:#00e5ff;font-size:.85rem}
+#report-bar span{display:flex;gap:6px}
+#report-bar button{flex:none;min-height:36px;padding:6px 12px;max-width:none;background:#0288d1}
+#report-body{max-width:800px;margin:0 auto;padding:12px;font-size:.8rem;line-height:1.5;color:#ddd}
+.rp-title{font-size:1.15rem;color:#00e5ff;font-weight:bold}
+.rp-sub{color:#999;font-size:.72rem}
+.rp-sec{border-top:1px solid #333;margin-top:12px;padding-top:8px}
+.rp-sec h4{margin:0 0 6px;color:#00e5ff;font-size:.9rem}
+.rp-sec ul{margin:0;padding-left:18px}
+.rp-card{border:1px solid #333;background:#121212;padding:10px;margin-top:10px}
+.rp-ct{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:bold;color:#fff}
+.rp-ct span{font-weight:normal;color:#888;font-size:.7rem}
+.rp-card table{width:100%;border-collapse:collapse;margin:6px 0;font-size:.74rem}
+.rp-card td{border-bottom:1px solid #222;padding:3px 4px;vertical-align:top}
+.rp-card td:first-child{color:#999;width:46%}
+.rp-cm{border-left:3px solid;padding:2px 8px;margin:4px 0}
+.rp-tr{color:#b39ddb;font-size:.74rem;margin-top:4px}
+.rp-note{color:#a0a0a0;font-size:.72rem;margin-top:12px;line-height:1.6;background:#111;padding:10px;border-radius:6px;border:1px solid #222}
+@media print{
+html,body{height:auto!important;overflow:visible!important;display:block!important;background:#fff!important}
+body>*:not(#report-overlay){display:none!important}
+#report-overlay.open{position:static!important;background:#fff!important;overflow:visible!important}
+#report-bar{display:none!important}
+#report-body,#report-body *{color:#000!important;background:transparent!important;border-color:#999!important}
+.rp-card{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div id="err-banner"></div>
+<header>
+<h1>SPPLab - Cognition & Performance Studio</h1>
+<div class="demo-bar">
+<div class="demo-field"><label>Katılımcı/Sporcu ID *</label><input type="text" id="athlete-id" value="" placeholder="Örn: ATH-101" maxlength="32" style="width:90px" required></div>
+<div class="demo-field"><label>Yaş *</label><input type="number" id="athlete-age" value="" placeholder="Yaş" min="5" max="99" style="width:45px" required></div>
+<div class="demo-field"><label>Cinsiyet *</label><select id="athlete-gender" style="width:75px" required><option value="">Seçiniz</option><option value="Erkek">Erkek</option><option value="Kadin">Kadın</option><option value="Diger">Diğer</option></select></div>
+<div class="demo-field"><label>Branş *</label><input type="text" id="athlete-sport" value="" placeholder="Örn: Judoka" maxlength="32" style="width:75px" required></div>
+<div class="demo-field"><label>Baskın El *</label><select id="athlete-dominant" style="width:65px" required><option value="">Seçiniz</option><option value="Sag">Sağ</option><option value="Sol">Sol</option><option value="Ambidextrous">Çift</option></select></div>
+<div class="demo-field"><label>Spor Yılı *</label><input type="number" id="athlete-exp" value="" placeholder="Yıl" min="0" max="80" style="width:45px" required></div>
+<div class="demo-field"><label>Eğitim Düzeyi *</label><select id="athlete-edu" style="width:85px" required><option value="">Seçiniz</option><option value="Ilkokul">İlkokul</option><option value="Lise">Lise</option><option value="Lisans">Lisans</option><option value="Lisansustu">Lisansüstü</option></select></div>
+<div class="demo-field"><label>Yarışma Seviyesi *</label><select id="athlete-level" style="width:85px" required><option value="">Seçiniz</option><option value="Amator">Amatör</option><option value="Ulusal">Ulusal</option><option value="Milli_Elit">Milli / Elit</option></select></div>
+<div class="demo-field"><label>Görüş Düzeltme *</label><select id="athlete-vision" style="width:70px" required><option value="">Seçiniz</option><option value="Yok">Yok</option><option value="Gozluk">Gözlük</option><option value="Lens">Lens</option></select></div>
+<div class="demo-field"><label>Kafein/Uyarıcı *</label><select id="athlete-caffeine" style="width:65px" required><option value="">Seçiniz</option><option value="Yok">Yok</option><option value="Var">Var (Son 2s)</option></select></div>
+</div>
+<div class="panel-row">
+<select id="module-select">
+<optgroup label="A. Bilişsel İnhibisyon & Çatışma">
+<option value="gonogo">1. Go/No-Go (Tepki Baskılama)</option>
+<option value="stroop">2. Stroop (Renk-Kelime Çelişkisi)</option>
+<option value="simon">3. Simon Effect (Mekânsal Çatışma)</option>
+<option value="flanker">4. Flanker Testi (Çeldirici Dikkat)</option>
+<option value="antisaccade">5. Anti-Saccade (Refleks Baskılama)</option>
+</optgroup>
+<optgroup label="B. Nöropsikolojik & Bellek">
+<option value="trailA">6. Trail Making A (Sayısal Tarama)</option>
+<option value="trailB">7. Trail Making B (Görev Değiştirme)</option>
+<option value="memory">8. Görsel Dizilim Bellek (Corsi Span)</option>
+<option value="nback">9. Spatial N-Back (Bellek Güncelleme)</option>
+<option value="digit_span">10. Görsel Sayı Dizilimi Belleği</option>
+</optgroup>
+<optgroup label="C. Saha & Kinetik Depar">
+<option value="sprint_ball">11. Saha Depar: Top Getirme Reaksiyonu</option>
+<option value="agility_run">12. Renk Koni Çeviklik Deparı</option>
+<option value="complex_agility">13. Karmaşık Çift Komut Deparı (Go/No-Go)</option>
+<option value="choice_react">14. Çoklu Seçenek Reaksiyon Deparı</option>
+<option value="visual_search">15. Görsel Arama & Depar</option>
+</optgroup>
+<optgroup label="D. Uyanıklık, Zamanlama & Dikkat">
+<option value="pvt">16. Basit Reaksiyon (PVT - Sürdürülen Dikkat)</option>
+<option value="stopsignal">17. Stop-Signal (Eylem Durdurma - SSRT)</option>
+<option value="taskswitch">18. Görev Değiştirme (Bilişsel Esneklik)</option>
+<option value="mot">19. Çoklu Nesne Takibi (MOT)</option>
+<option value="timing">20. Öngörü Zamanlaması (Anticipation)</option>
+</optgroup>
+</select>
+<select id="mode-select"><option value="quick">Hızlı Tarama (ön fikir)</option><option value="rel">Güvenilir Tam Seans</option></select>
+</div>
+<div class="extra-options" id="opt-digit"><label>Başlangıç uzunluğu: </label><select id="digit-length-select"><option value="4">4 Basamak (Standart)</option><option value="8">8 Basamak (Zor)</option></select></div>
+<div class="extra-options" id="opt-nback"><label>N seviyesi: </label><select id="nback-n-select"><option value="1">1-back</option><option value="2">2-back</option><option value="3">3-back</option></select></div>
+<div class="consent-row"><label><input type="checkbox" id="consent"> Verilerimin bilimsel araştırma amacıyla anonim kaydedilmesine izin veriyorum.</label><span id="sync-status"></span></div>
+</header>
+
+<div id="stats-bar">
+<div class="stat-item">Deneme: <span id="stat-trials">0/10</span></div>
+<div class="stat-item">Sayaç: <span id="stat-timer">0.00 s</span></div>
+<div class="stat-item">Puan: <span id="stat-score">0</span></div>
+<div class="stat-item">Hata: <span id="stat-errors">0</span></div>
+</div>
+
+<div id="game-area">
+<div id="instruction-card"><h3 id="instr-title">Test Yönergesi</h3><p id="instr-text">Test yükleniyor...</p><div id="instr-eval" class="eval-info"></div><div id="instr-score-formula" class="score-info"></div></div>
+<div id="antisaccade-touch-zone"><div id="antisaccade-left-zone" class="antisaccade-half"></div><div id="antisaccade-right-zone" class="antisaccade-half"></div></div>
+<canvas id="cv"></canvas>
+<div id="target-circle"></div>
+<div id="dual-buttons"><div class="choice-btn btn-left" id="btn-left-opt">SOL</div><div class="choice-btn btn-right" id="btn-right-opt">SAĞ</div></div>
+<div id="spatial-grid">
+<div class="spatial-btn" data-key="red" style="background:#ff1744"></div>
+<div class="spatial-btn" data-key="blue" style="background:#29b6f6"></div>
+<div class="spatial-btn" data-key="green" style="background:#00e676"></div>
+<div class="spatial-btn" data-key="yellow" style="background:#ffea00"></div>
+</div>
+<div id="memory-grid"></div>
+<div id="numpad-grid"></div>
+<div id="trail-area"></div>
+</div>
+
+<div id="controls">
+<button id="start-btn" class="btn-start">Başlat</button>
+<button id="stop-btn" class="btn-stop" disabled>Durdur</button>
+<button id="export-btn" class="btn-export" disabled>CSV İndir</button>
+<button id="report-btn" class="btn-report">Rapor</button>
+<button id="mute-btn" class="btn-mute">Ses: Açık</button>
+</div>
+
+<div id="report-overlay">
+<div id="report-bar"><b>SPPLab Bilişsel & Psikometrik Rapor</b><span><button id="rep-print">Yazdır</button><button id="rep-copy">Kopyala</button><button id="rep-close">Kapat</button></span></div>
+<div id="report-body"></div>
+</div>
+
+<script>
+window.addEventListener('error',function(e){var b=document.getElementById('err-banner');if(b){b.style.display='block';b.textContent='HATA: '+e.message+' (satır '+e.lineno+')';}});
+
+const APP_VERSION="5.0";
+const API_URL="";   
+const API_TOKEN=""; 
+
+const $=id=>document.getElementById(id);
+const rnd=n=>Math.floor(Math.random()*n);
+const pick=a=>a[rnd(a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);const t=a[i];a[i]=a[j];a[j]=t;}return a;};
+const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+const med=a=>{if(!a.length)return null;const s=a.slice().sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2;};
+const sd=a=>{if(a.length<2)return null;const m=mean(a);return Math.sqrt(a.reduce((x,y)=>x+(y-m)*(y-m),0)/(a.length-1));};
+const fmt=v=>v==null?"–":Math.round(v);
+const msSn=ms=>ms+" ms ("+(ms/1000).toFixed(2)+" sn)";
+const accOf=a=>a.length?a.filter(x=>x.correct).length/a.length:0;
+
+const COLORS={
+red:{hex:'#ff1744',en:'RED',tr:'KIRMIZI',freq:400},
+blue:{hex:'#29b6f6',en:'BLUE',tr:'MAVİ',freq:500},
+green:{hex:'#00e676',en:'GREEN',tr:'YEŞİL',freq:600},
+yellow:{hex:'#ffea00',en:'YELLOW',tr:'SARI',freq:700}};
+const KEYS=Object.keys(COLORS);
+const SYMBOLS=['▲','●','■','★'];
+
+const CFG={
+gonogo:{q:[2,10],r:[4,50]},
+stroop:{q:[2,10],r:[4,60]},
+simon:{q:[2,10],r:[4,60]},
+flanker:{q:[2,10],r:[4,60]},
+antisaccade:{q:[2,10],r:[4,40]},
+nback:{q:[0,40],r:[0,80]},
+digit_span:{q:[0,10],r:[0,40]},
+sprint_ball:{q:[2,10],r:[2,20]},
+agility_run:{q:[2,10],r:[2,20]},
+complex_agility:{q:[2,10],r:[2,30]},
+choice_react:{q:[2,10],r:[2,20]},
+visual_search:{q:[2,10],r:[2,20]},
+pvt:{q:[2,15],r:[3,40]},
+stopsignal:{q:[4,40],r:[6,100]},
+taskswitch:{q:[4,40],r:[6,96]},
+mot:{q:[1,3],r:[2,8]},
+timing:{q:[2,10],r:[3,30]}
+};
+
+const moduleSelect=$('module-select'),modeSelect=$('mode-select'),circle=$('target-circle'),gameArea=$('game-area');
+const zoneBox=$('antisaccade-touch-zone'),dualButtons=$('dual-buttons');
+const btnLeft=$('btn-left-opt'),btnRight=$('btn-right-opt');
+const spatialGrid=$('spatial-grid'),memoryGrid=$('memory-grid'),numpadGrid=$('numpad-grid'),trailArea=$('trail-area');
+const cv=$('cv'),cx=cv.getContext('2d');
+const instructionCard=$('instruction-card');
+const startBtn=$('start-btn'),stopBtn=$('stop-btn'),exportBtn=$('export-btn'),muteBtn=$('mute-btn'),reportBtn=$('report-btn');
+const statTrials=$('stat-trials'),statTimer=$('stat-timer'),statScore=$('stat-score'),statErrors=$('stat-errors');
+const cones=Array.from(document.querySelectorAll('.spatial-btn'));
+
+const S={mod:null,run:0,active:false,waiting:false,rows:[],idx:0,total:10,practiceN:0,rel:false,open:false,t0:0,clockStart:0,resp:null,early:null,athlete:null,sessionId:'',ctx:{},cw:0,ch:0};
+const rel=()=>modeSelect.value==='rel';
+const openFor=m=>!!(m.open||(rel()&&m.openRel));
+function getCfg(mod){const m=MODS[mod],c=CFG[mod];return c?c[rel()?'r':'q']:[m.practice||0,m.total||0];}
+function suffix(mod){
+const m=MODS[mod];
+if(rel()&&m.relNote)return' '+m.relNote;
+if(!CFG[mod])return'';
+const c=getCfg(mod);
+return' ('+(c[0]?c[0]+' alıştırma + ':'')+c[1]+' deneme)';
+}
+function mkPlan(pn,tot,k){
+const part=n=>{const t=Math.round(n*k);return shuffle(Array.from({length:n},(_,i)=>i<t));};
+return part(pn).concat(part(tot));
+}
+
+const T={
+ids:new Set(),
+set(fn,ms){const run=S.run;const id=setTimeout(()=>{T.ids.delete(id);if(run===S.run&&S.active)fn();},ms);T.ids.add(id);return id;},
+clear(){T.ids.forEach(clearTimeout);T.ids.clear();}
+};
+
+let clockInt=null;
+function startClock(){stopClock();S.clockStart=performance.now();clockInt=setInterval(()=>{statTimer.textContent=((performance.now()-S.clockStart)/1000).toFixed(2)+' s';},50);}
+function stopClock(){if(clockInt)clearInterval(clockInt);clockInt=null;}
+
+let audioCtx=null,muted=false;
+function initAudio(){try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();}catch(e){}}
+function beep(freq,dur){dur=dur||0.15;if(muted)return;try{initAudio();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.setValueAtTime(freq,audioCtx.currentTime);g.gain.setValueAtTime(0.2,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+dur);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur);}catch(e){}}
+function speak(text){if(muted)return;try{if('speechSynthesis' in window){speechSynthesis.cancel();const m=new SpeechSynthesisUtterance(text);m.lang='en-US';speechSynthesis.speak(m);}}catch(e){}}
+muteBtn.addEventListener('click',()=>{muted=!muted;muteBtn.textContent=muted?'Ses: Kapalı':'Ses: Açık';if(muted&&'speechSynthesis' in window)speechSynthesis.cancel();});
+
+let wl=null;
+async function requestWake(){try{if('wakeLock' in navigator)wl=await navigator.wakeLock.request('screen');}catch(e){}}
+function releaseWake(){if(wl){wl.release().catch(()=>{});wl=null;}}
+
+let cvRaf=0,cvLast=0;
+function sizeCv(){
+const dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;
+const bw=Math.round(w*dpr),bh=Math.round(h*dpr);
+if(cv.width!==bw||cv.height!==bh){cv.width=bw;cv.height=bh;}
+cx.setTransform(dpr,0,0,dpr,0,0);
+S.cw=w;S.ch=h;
+}
+function cvStop(){if(cvRaf)cancelAnimationFrame(cvRaf);cvRaf=0;}
+function cvShow(){
+cv.style.display='block';sizeCv();cvStop();cvLast=performance.now();
+const f=t=>{
+cvRaf=requestAnimationFrame(f);
+const dt=Math.min(0.05,Math.max(0,(t-cvLast)/1000));cvLast=t;
+sizeCv();
+if(S.active&&S.ctx&&S.ctx.frame)S.ctx.frame(dt);
+};
+cvRaf=requestAnimationFrame(f);
+}
+
+function fb(ok){gameArea.classList.remove('fb-ok','fb-bad');void gameArea.offsetWidth;gameArea.classList.add(ok?'fb-ok':'fb-bad');}
+function setCircle(x,y,o){o=o||{};circle.className=o.wide?'wide':'';circle.style.left=x+'%';circle.style.top=y+'%';circle.style.backgroundColor=o.bg||'#000';circle.style.color=o.color||'#fff';circle.style.pointerEvents=o.events===false?'none':'auto';circle.textContent=o.text||'';circle.style.display='flex';}
+function setDual(l,r){btnLeft.textContent=l;btnRight.textContent=r;dualButtons.style.display='flex';gameArea.classList.add('has-buttons');}
+function setGrid(o){o=o||{};spatialGrid.style.display='grid';spatialGrid.classList.toggle('compact',!!o.compact);spatialGrid.classList.toggle('all-on',!!o.allOn);cones.forEach((c,i)=>{c.textContent=o.labels?o.labels[i]:'';c.classList.remove('active');});}
+function lightCone(key){cones.forEach(c=>c.classList.toggle('active',c.dataset.key===key));}
+function hideStim(){circle.style.display='none';zoneBox.style.display='none';numpadGrid.style.display='none';cones.forEach(c=>c.classList.remove('active'));memoryGrid.querySelectorAll('.lit').forEach(b=>b.classList.remove('lit'));}
+
+function present(setup){const run=S.run;setup();requestAnimationFrame(()=>requestAnimationFrame(()=>{if(run!==S.run||!S.active)return;S.t0=performance.now();S.waiting=true;}));}
+function delayThenPresent(setup){T.set(()=>present(setup),500+rnd(1300));}
+function rtFrom(ev){const now=performance.now();const t=(ev&&ev.timeStamp>0&&ev.timeStamp<=now+5)?ev.timeStamp:now;return Math.max(0,Math.round(t-S.t0));}
+const isPractice=()=>S.idx<=S.practiceN;
+
+function record(o){
+const p=S.athlete;
+const row={sessionId:S.sessionId,timestamp:new Date().toISOString(),version:APP_VERSION,
+athleteId:p.id,age:p.age,gender:p.gender,sport:p.sport,dominantSide:p.dominant,experienceYears:p.exp,
+education:p.edu,level:p.level,vision:p.vision,caffeine:p.caffeine,
+screen:p.screen,userAgent:p.ua,
+module:S.mod,mode:S.rel?'GUVENILIR':'HIZLI',trial:o.trial!==undefined?o.trial:S.idx,
+practice:o.practice!==undefined?(o.practice?1:0):(isPractice()?1:0),
+condition:o.cond||'',response:o.resp||'',
+rt:o.rt==null?null:o.rt,cum:o.cum==null?null:o.cum,
+correct:o.correct?1:0,note:o.note||'',
+extra:o.extra!==undefined?o.extra:(S.mod==='nback'?'N='+S.ctx.N:(S.mod==='digit_span'?'baslangic='+S.ctx.len0:'')),score:0};
+S.rows.push(row);
+row.score=computeScore();
+updateStats();
+}
+
+function endTrial(o){S.waiting=false;S.resp=null;T.clear();record(o);fb(o.correct);if(!o.correct)beep(150,0.2);hideStim();T.set(nextTrial,o.delay||600);}
+function input(src,ev){if(ev&&ev.cancelable)ev.preventDefault();if(!S.active||!S.waiting||!S.resp)return;S.resp(src,ev);}
+function nextTrial(){
+const m=MODS[S.mod];
+if((m.over&&m.over())||(!S.open&&S.idx>=S.practiceN+S.total)){finishTest();return;}
+S.idx++;S.waiting=false;
+if(!S.open)statTrials.textContent=isPractice()?('Pratik '+S.idx+'/'+S.practiceN):((S.idx-S.practiceN)+'/'+S.total);
+m.trial();
+}
+
+const okRows=r=>r.filter(x=>x.correct);
+const errCount=r=>r.filter(x=>!x.correct).length;
+const rtsOf=r=>r.filter(x=>x.correct&&x.rt!=null).map(x=>x.rt);
+const meanRT=r=>mean(rtsOf(r));
+const scRT=div=>r=>(okRows(r).length/r.length)*1000-(meanRT(r)||0)/div-errCount(r)*200/(S.total||10);
+const spanOf=r=>Math.max.apply(null,[0].concat(okRows(r).map(x=>parseInt(x.condition.slice(1))||0)));
+const exNum=(x,key)=>{const v=parseInt(String(x.extra||'').replace(key+'=',''));return isNaN(v)?null:v;};
+
+function zinv(p){const t=Math.sqrt(-2*Math.log(p<0.5?p:1-p));const x=t-(2.515517+0.802853*t+0.010328*t*t)/(1+1.432788*t+0.189269*t*t+0.001308*t*t*t);return p<0.5?-x:x;}
+function nbackStats(r){
+const m=r.filter(x=>x.condition==='MATCH'),n=r.filter(x=>x.condition==='NONMATCH');
+const hits=m.filter(x=>x.response==='MATCH').length,fa=n.filter(x=>x.response==='MATCH').length;
+const H=(hits+0.5)/(m.length+1),F=(fa+0.5)/(n.length+1);
+return{hits:hits,nM:m.length,fa:fa,nN:n.length,d:zinv(H)-zinv(F),c:-(zinv(H)+zinv(F))/2};
+}
+
+const TRAIL_LEN=20;
+function trailRounds(r){
+const by={};
+r.forEach(x=>{if(/^(R\d+|REAL)$/.test(x.condition)){(by[x.condition]=by[x.condition]||[]).push(x);}});
+return Object.keys(by).sort().map(k=>{
+const rows=by[k],legs=rows.filter(x=>x.correct);
+return{k:k,legs:legs,err:rows.length-legs.length,sec:legs.length>=TRAIL_LEN?legs[legs.length-1].cum/1000:null};
+});
+}
+function trailAvgLegs(rounds){
+const done=rounds.filter(x=>x.sec!=null);
+if(!done.length)return[];
+return done[0].legs.map((l,i)=>({note:l.note,rt:mean(done.map(d=>d.legs[i].rt))}));
+}
+function trailStats(r){
+const rounds=trailRounds(r),done=rounds.filter(x=>x.sec!=null);
+return{rounds:rounds,legs:trailAvgLegs(rounds),sec:done.length?mean(done.map(x=>x.sec)):null,err:rounds.reduce((a,x)=>a+x.err,0)};
+}
+function trailLegsHtml(legs){
+if(!legs.length)return'';
+const rts=legs.map(l=>l.rt),best=Math.min.apply(null,rts),worst=Math.max.apply(null,rts);
+const items=legs.map(l=>{const cls=l.rt===best?'best':l.rt===worst?'worst':'';return'<div class="'+cls+'"><span>'+l.note+'</span><span>'+(l.rt/1000).toFixed(2)+' sn</span></div>';}).join('');
+return'<b>Hedefler arası süreler (ort.):</b><div class="legs">'+items+'</div>';
+}
+function computeScore(){const r=S.rows.filter(x=>!x.practice);if(!r.length)return 0;return Math.max(0,Math.round(MODS[S.mod].score(r)));}
+function updateStats(){statErrors.textContent=S.rows.filter(x=>!x.practice&&!x.correct).length;statScore.textContent=computeScore();}
+function condEffect(r){
+const c=meanRT(r.filter(x=>x.condition==='CONGRUENT')),i=meanRT(r.filter(x=>x.condition==='INCONGRUENT'));
+return['Uyumlu ort. RT: '+fmt(c)+' ms','Uyumsuz ort. RT: '+fmt(i)+' ms','Etki (uyumsuz − uyumlu): '+(c!=null&&i!=null?Math.round(i-c)+' ms':'–')];
+}
+
+function timingErrs(r){
+const errs=r.filter(x=>x.response!=='NONE').map(x=>parseInt(x.response)).filter(v=>isFinite(v));
+return{errs:errs,miss:r.filter(x=>x.response==='NONE').length};
+}
+function stopStats(r){
+const go=r.filter(x=>x.condition==='GO'),st=r.filter(x=>x.condition==='STOP');
+const fails=st.filter(x=>!x.correct),pr=st.length?fails.length/st.length:0;
+const ssds=st.map(x=>exNum(x,'SSD')).filter(v=>v!=null);
+const mSSD=mean(ssds);
+const goVals=go.map(x=>x.rt!=null?x.rt:1500).sort((a,b)=>a-b);
+const ssrt=(mSSD!=null&&goVals.length)?goVals[Math.max(0,Math.ceil(pr*goVals.length)-1)]-mSSD:null;
+return{go:go,st:st,fails:fails,pr:pr,mSSD:mSSD,ssrt:ssrt};
+}
+
+const RT_FORMULA="Puan = Doğruluk×1000 − Ort.RT(ms)/2 − Hata×(200/Deneme sayısı) (alıştırma hariç)";
+const FIELD_FORMULA="Puan = Doğruluk×1000 − Ort.RT(ms)/10 − Hata×(200/Deneme sayısı) (alıştırma hariç)";
+
+function trailModule(kind){
+const real=kind==='A'?Array.from({length:TRAIL_LEN},(_,i)=>String(i+1)):['1','A','2','B','3','C','4','D','5','E','6','F','7','G','8','H','9','I','10','J'];
+const demo1=kind==='A'?['1','2','3','4']:['1','A','2','B'];
+const demo2=kind==='A'?['1','2','3','4','5']:['1','A','2','B','3'];
+return{
+title:kind==='A'?"6. Trail Making Test A":"7. Trail Making Test B",
+text:kind==='A'?"1'den 20'ye kadar sayılara sırasıyla dokunun. Önce 2 kısa alıştırma yapılır.":"1-A-2-B-3-C... şeklinde sayı ve harfe dönüşümlü dokunun. Önce 2 kısa alıştırma yapılır.",
+relNote:"Güvenilir modda 3 tur yapılır: 1. tur alıştırma sayılır, 2. ve 3. tur puanlanır.",
+eval:kind==='A'?"Ölçülen Bilişsel Parametre: Görsel-Mekânsal Tarama, İşleme Hızı ve Motor Hız.":"Ölçülen Bilişsel Parametre: Bilişsel Esneklik, Görev Değiştirme (Task-Switching) ve Çalışma Belleği.",
+formula:"Puan = 1000 − Süre(sn)×8 − Hata×30 (puanlanan turların ortalama süresi)",open:true,practice:0,
+score:r=>{const s=trailStats(r);return s.sec==null?0:1000-s.sec*8-s.err*30;},
+extra:r=>{
+const s=trailStats(r);
+const out=['Tamamlama süresi (ort.): '+(s.sec==null?'–':s.sec.toFixed(1)+' sn'),'Sıra hatası: '+s.err];
+const done=s.rounds.filter(x=>x.sec!=null);
+if(done.length>1)out.push('Tur süreleri: '+done.map(x=>x.sec.toFixed(1)+' sn').join(' · '));
+if(s.legs.length){
+const rts=s.legs.map(l=>l.rt);
+const bi=rts.indexOf(Math.min.apply(null,rts)),wi=rts.indexOf(Math.max.apply(null,rts));
+out.push('<span style="color:#00e676">En hızlı aralık: '+s.legs[bi].note+' → '+(rts[bi]/1000).toFixed(2)+' sn</span>',
+'<span style="color:#ff5252">En yavaş aralık: '+s.legs[wi].note+' → '+(rts[wi]/1000).toFixed(2)+' sn</span>',
+'Ortalama aralık: '+(mean(rts)/1000).toFixed(2)+' sn',
+trailLegsHtml(s.legs));
+}
+return out;
+},
+setup(){S.ctx.stage='P1';S.ctx.rounds=S.rel?3:1;trailArea.style.display='block';},
+trial(){
+const st=S.ctx.stage,isReal=st.charAt(0)==='R';
+const rn=isReal?parseInt(st.slice(1)):0;
+const seq=st==='P1'?demo1:st==='P2'?demo2:real;
+const pr=!isReal||(S.rel&&rn===1);
+S.idx=isReal?3:(st==='P1'?1:2);
+statTrials.textContent=isReal?(S.ctx.rounds>1?('Tur '+rn+'/'+S.ctx.rounds+(pr?' (alıştırma)':'')):'GERÇEK TEST'):('Pratik '+S.idx+'/2');
+trailArea.innerHTML='';
+const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+trailArea.appendChild(svg);
+const W=trailArea.clientWidth,H=trailArea.clientHeight,sz=46,minD=58,pts=[];
+seq.forEach(()=>{
+let p,tries=0;
+do{p={x:rnd(Math.max(1,W-sz)),y:rnd(Math.max(1,H-sz))};tries++;}
+while(tries<600&&pts.some(q=>Math.hypot(q.x-p.x,q.y-p.y)<minD));
+pts.push(p);
+});
+S.ctx.next=0;S.ctx.prev=null;S.ctx.lastCum=0;
+seq.forEach((val,i)=>{
+const node=document.createElement('div');
+node.className='trail-node';node.textContent=val;
+node.style.left=pts[i].x+'px';node.style.top=pts[i].y+'px';
+node.addEventListener('pointerdown',ev=>{
+ev.preventDefault();
+if(!S.active||!S.waiting||node.classList.contains('done'))return;
+const cum=Math.round(performance.now()-S.t0);
+if(val===seq[S.ctx.next]){
+const from=S.ctx.next===0?'Başla':seq[S.ctx.next-1];
+const leg=cum-S.ctx.lastCum;
+S.ctx.lastCum=cum;
+beep(400+S.ctx.next*30,0.1);
+node.classList.add('done');
+const c={x:pts[i].x+sz/2,y:pts[i].y+sz/2};
+if(S.ctx.prev){
+const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+ln.setAttribute('x1',S.ctx.prev.x);ln.setAttribute('y1',S.ctx.prev.y);
+ln.setAttribute('x2',c.x);ln.setAttribute('y2',c.y);
+ln.setAttribute('stroke','#00e676');ln.setAttribute('stroke-width','3');
+svg.appendChild(ln);
+}
+S.ctx.prev=c;S.ctx.next++;
+record({correct:true,rt:leg,cum:cum,note:from+'→'+val,cond:st,resp:String(val),practice:pr});
+if(S.ctx.next>=seq.length){
+S.waiting=false;fb(true);
+if(isReal&&rn>=S.ctx.rounds){T.set(finishTest,400);}
+else{S.ctx.stage=st==='P1'?'P2':st==='P2'?'R1':'R'+(rn+1);T.set(MODS[S.mod].trial,1200);}
+}
+}else{
+record({correct:false,rt:null,cum:cum,note:'Sıra Hatası ('+val+', beklenen '+seq[S.ctx.next]+')',cond:st,resp:String(val),practice:pr});
+fb(false);beep(150,0.2);
+}
+});
+trailArea.appendChild(node);
+});
+startClock();
+S.t0=performance.now();S.waiting=true;
+}
+};
+}
+
+const MODS={
+gonogo:{
+title:"1. Go/No-Go Testi",text:"Yeşil 'DOKUN!' uyarısında hızlıca dokunun. Kırmızı 'DUR!' uyarısında dokunmayın.",
+eval:"Ölçülen Bilişsel Parametre: Motor İnhibisyon ve Tepki Baskılama. Başlatılmış bir motor hareketi baskılama ve hedef olmayan uyarana (No-Go) hatalı tepki vermeyi engelleme yeteneğini ölçer.",formula:RT_FORMULA,score:scRT(2),planK:[0.7,0.7],
+extra:r=>["Komisyon Hatası (DUR uyarısında hatalı basma): "+r.filter(x=>x.condition==='NOGO'&&!x.correct).length,"Omisyon Hatası (DOKUN uyarısını kaçırma): "+r.filter(x=>x.condition==='GO'&&!x.correct).length],
+setup(){},
+trial(){const go=S.ctx.plan[S.idx-1];delayThenPresent(()=>{
+const cond=go?'GO':'NOGO';
+setCircle(50,42,{bg:go?'#00e676':'#ff1744',color:'#000',text:go?'DOKUN!':'DUR!'});
+S.resp=(src,ev)=>{if(src!=='circle')return;endTrial({correct:go,note:go?'Doğru Dokunma':'Baskılama Hatası',rt:rtFrom(ev),cond:cond,resp:'TAP'});};
+if(go)T.set(()=>endTrial({correct:false,note:'Cevapsız (omisyon)',cond:cond,resp:'NONE'}),1500);
+else T.set(()=>endTrial({correct:true,note:'Doğru Baskılama',cond:cond,resp:'NONE'}),1200);
+});}
+},
+stroop:{
+title:"2. Stroop Testi",text:"Kelimenin ne YAZDIĞINA bakmayın; YAZI RENGİNİ gösteren renkli kutuya dokunun.",
+eval:"Ölçülen Bilişsel Parametre: Bilişsel Çatışma ve Seçici Dikkat. Otomatikleşmiş okuma eğilimi ile hedef renk arasındaki çelişkiyi (Stroop Etkisi) yönetme ve çeldiriciyi engelleme hızını ölçer.",formula:"Puan = (Doğru×10 − Hata×15) × 10/Deneme sayısı (alıştırma hariç)",planK:[0.33,0.5],
+score:r=>(okRows(r).length*10-errCount(r)*15)*10/(S.total||10),
+extra:r=>{const c=meanRT(r.filter(x=>x.condition==='CONGRUENT')),i=meanRT(r.filter(x=>x.condition==='INCONGRUENT'));return['Uyumlu ort. RT: '+fmt(c)+' ms','Uyumsuz ort. RT: '+fmt(i)+' ms'];},
+setup(){setGrid({compact:true,allOn:true});},
+trial(){const cong=S.ctx.plan[S.idx-1];delayThenPresent(()=>{
+const word=pick(KEYS),ink=cong?word:pick(KEYS.filter(k=>k!==word));
+const cond=cong?'CONGRUENT':'INCONGRUENT';
+setCircle(50,22,{wide:true,bg:'#000',color:COLORS[ink].hex,text:COLORS[word].tr,events:false});
+S.resp=(src,ev)=>{if(src.indexOf('cone:')!==0)return;const k=src.slice(5),ok=k===ink;endTrial({correct:ok,note:ok?'Doğru':'Yanlış Renk',rt:rtFrom(ev),cond:cond,resp:k.toUpperCase()});};
+T.set(()=>endTrial({correct:false,note:'Cevapsız',cond:cond,resp:'NONE'}),3000);
+});}
+},
+simon:{
+title:"3. Simon Effect Testi",text:"Konuma aldanmayın. Kırmızı = SOL, Mavi = SAĞ butonuna basın.",
+eval:"Ölçülen Bilişsel Parametre: Mekânsal Uyumluluk Çatışması (Simon Effect). Uyarının ekrandaki konumu ile tepki verilen el/yön arasındaki mekânsal çelişkinin tepki süresine etkisini ölçer.",formula:RT_FORMULA,score:scRT(2),extra:condEffect,planK:[0.5,0.5],
+setup(){setDual("Kırmızı","Mavi");},
+trial(){const cong=S.ctx.plan[S.idx-1];delayThenPresent(()=>{
+const red=Math.random()<0.5,correct=red?'LEFT':'RIGHT';
+const left=cong?(correct==='LEFT'):(correct!=='LEFT'),cond=cong?'CONGRUENT':'INCONGRUENT';
+setCircle(left?22:78,40,{bg:red?'#ff1744':'#29b6f6',events:false});
+S.resp=(src,ev)=>{if(src!=='left'&&src!=='right')return;const ans=src.toUpperCase(),ok=ans===correct;endTrial({correct:ok,note:ok?'Doğru':'Hata',rt:rtFrom(ev),cond:cond,resp:ans});};
+T.set(()=>endTrial({correct:false,note:'Cevapsız',cond:cond,resp:'NONE'}),2000);
+});}
+},
+flanker:{
+title:"4. Flanker Testi",text:"Sadece ortadaki 3. okun gösterdiği yöndeki butona dokunun.",
+eval:"Ölçülen Bilişsel Parametre: Görsel Çevre Çeldirici Baskılama (Flanker Effect). Hedef uyaranın yanındaki çeldirici okların yarattığı dikkatsizlik yükünü süzme kapasitesini ölçer.",formula:RT_FORMULA,score:scRT(2),extra:condEffect,planK:[0.5,0.5],
+setup(){setDual("◀ SOL","SAĞ ▶");},
+trial(){const cong=S.ctx.plan[S.idx-1];delayThenPresent(()=>{
+const pool=[{t:'>>>>>',c:'RIGHT',k:'CONGRUENT'},{t:'<<<<<',c:'LEFT',k:'CONGRUENT'},{t:'<<><<',c:'RIGHT',k:'INCONGRUENT'},{t:'>><>>',c:'LEFT',k:'INCONGRUENT'}];
+const s=pick(pool.filter(x=>(x.k==='CONGRUENT')===cong));
+setCircle(50,40,{wide:true,bg:'#222',color:'#00e5ff',text:s.t,events:false});
+S.resp=(src,ev)=>{if(src!=='left'&&src!=='right')return;const ans=src.toUpperCase(),ok=ans===s.c;endTrial({correct:ok,note:ok?'Doğru':'Hata',rt:rtFrom(ev),cond:s.k,resp:ans});};
+T.set(()=>endTrial({correct:false,note:'Cevapsız',cond:s.k,resp:'NONE'}),2000);
+});}
+},
+antisaccade:{
+title:"5. Anti-Saccade Testi",text:"Sarı ışık kısa süre görünür. Işığa DOKUNMAYIN; ekranın ZIT tarafına dokunun.",
+eval:"Ölçülen Bilişsel Parametre: Görsel Refleks İnhibisyonu (Anti-Saccade). Aniden beliren uyarana otomatik yönelme refleksini (sakkad) bastırıp zıt yöne bilinçli odaklanma yeteneğini ölçer.",formula:RT_FORMULA,score:scRT(2),planK:[0.5,0.5],
+setup(){},
+trial(){const left=S.ctx.plan[S.idx-1];delayThenPresent(()=>{
+const correct=left?'RIGHT':'LEFT',cond=left?'TARGET_LEFT':'TARGET_RIGHT';
+zoneBox.style.display='block';
+setCircle(left?18:82,42,{bg:'#ffea00',color:'#000',text:'IŞIK',events:false});
+T.set(()=>{circle.style.display='none';},300);
+S.resp=(src,ev)=>{const side=src==='zoneL'?'LEFT':src==='zoneR'?'RIGHT':null;if(!side)return;const ok=side===correct;endTrial({correct:ok,note:ok?'Doğru Zıt Dokunma':'Refleks İhlali (ışık tarafına dokundu)',rt:rtFrom(ev),cond:cond,resp:side});};
+T.set(()=>endTrial({correct:false,note:'Cevapsız',cond:cond,resp:'NONE'}),2500);
+});}
+},
+trailA:trailModule('A'),
+trailB:trailModule('B'),
+memory:{
+title:"8. Görsel Dizilim Bellek (Corsi)",text:"Yanan karelerin sırasını takip edip aynı sırayla dokunun. Seviye 3'te başlar; üst üste 3 hatada test biter.",
+relNote:"Güvenilir modda her seviyede 2 hak verilir; 1 hak başarılıysa bir üst seviyeye geçilir, 2 hak da başarısızsa test biter.",
+eval:"Ölçülen Bilişsel Parametre: Görsel-Mekânsal Çalışma Belleği Kapasitesi (Corsi Block Span). Mekânsal dizilimlerin zihinde tutulması ve sırayla geri çağırılması performansını ölçer.",formula:"Puan = En yüksek doğru seviye × 100 − Hata × 20",open:true,practice:0,
+score:r=>spanOf(r)*100-errCount(r)*20,
+extra:r=>['Corsi span: '+spanOf(r)],
+over:()=>S.ctx.level>9||S.ctx.fails>=3||S.ctx.dead,
+setup(){S.ctx.level=3;S.ctx.fails=0;S.ctx.per=S.rel?2:1;S.ctx.tries=0;S.ctx.passes=0;S.ctx.dead=false;memoryGrid.style.display='grid';},
+trial(){
+const lvl=S.ctx.level;
+statTrials.textContent='Seviye '+lvl+(S.ctx.per>1?' · hak '+(S.ctx.tries+1)+'/'+S.ctx.per:'');
+memoryGrid.innerHTML='';
+const blocks=[];
+for(let i=0;i<9;i++){const b=document.createElement('div');b.className='memory-block';const idx=i;b.addEventListener('pointerdown',e=>input('mem:'+idx,e));memoryGrid.appendChild(b);blocks.push(b);}
+const seq=[];
+while(seq.length<lvl){const c=rnd(9);if(seq[seq.length-1]!==c)seq.push(c);}
+const entered=[];
+let i=0;
+const adv=ok=>{
+const c=S.ctx;
+if(c.per===1){if(ok){c.level++;c.fails=0;}else c.fails++;}
+else{c.tries++;if(ok)c.passes++;if(c.tries>=c.per){if(c.passes>0)c.level++;else c.dead=true;c.tries=0;c.passes=0;}}
+};
+const step=()=>{
+if(i>=seq.length){
+S.resp=(src,ev)=>{
+if(src.indexOf('mem:')!==0)return;
+const n=+src.slice(4),k=entered.length;
+entered.push(n);
+blocks[n].classList.add('lit');T.set(()=>blocks[n].classList.remove('lit'),150);
+if(n!==seq[k]){adv(false);endTrial({correct:false,note:'Seviye '+lvl+' Başarısız',cond:'L'+lvl,resp:entered.join('-'),delay:1000});}
+else if(entered.length===seq.length){adv(true);endTrial({correct:true,note:'Seviye '+lvl+' Başarılı',rt:rtFrom(ev),cond:'L'+lvl,resp:entered.join('-'),delay:1000});}
+else beep(600,0.1);
+};
+S.t0=performance.now();S.waiting=true;
+return;
+}
+blocks[seq[i]].classList.add('lit');beep(500+i*60,0.2);
+T.set(()=>{blocks[seq[i]].classList.remove('lit');i++;T.set(step,300);},500);
+};
+T.set(step,600);
+}
+},
+nback:{
+title:"9. Spatial N-Back Bellek",text:"Yanan kare, N adım ÖNCEKİ ile aynıysa 'EŞLEŞTİ', değilse 'FARKLI'. İlk N deneme puanlanmaz.",
+eval:"Ölçülen Bilişsel Parametre: Çalışma Belleği Güncelleme ve Ayırt Etme (Signal Detection Theory: d′). Zihindeki bilgiyi anlık yenileme ve doğru hedefi ayırt etme gücünü ölçer.",formula:"Puan = d′ × 250 (0–1000)",
+score:r=>Math.min(1000,nbackStats(r).d*250),
+extra:r=>{const s=nbackStats(r);return['N seviyesi: '+S.ctx.N,'İsabet: '+s.hits+'/'+s.nM,'Yanlış alarm: '+s.fa+'/'+s.nN,'d′: '+s.d.toFixed(2)];},
+setup(){
+S.ctx.N=parseInt($('nback-n-select').value)||1;S.ctx.hist=[];
+S.ctx.plan=Array(S.ctx.N).fill(false).concat(mkPlan(0,Math.max(0,S.total-S.ctx.N),0.3));
+setDual("EŞLEŞTİ","FARKLI");
+memoryGrid.style.display='grid';memoryGrid.innerHTML='';
+for(let i=0;i<9;i++){const b=document.createElement('div');b.className='memory-block';memoryGrid.appendChild(b);}
+},
+trial(){
+const N=S.ctx.N,h=S.ctx.hist,blocks=memoryGrid.children;
+const canCompare=h.length>=N,ref=canCompare?h[h.length-N]:null;
+const isMatch=canCompare&&!!S.ctx.plan[h.length];
+let pos;
+if(isMatch)pos=ref;
+else{do{pos=rnd(9);}while(canCompare&&pos===ref);}
+h.push(pos);
+const cond=canCompare?(isMatch?'MATCH':'NONMATCH'):'WARMUP';
+present(()=>{blocks[pos].classList.add('lit');beep(600,0.1);});
+T.set(()=>blocks[pos].classList.remove('lit'),500);
+S.resp=(src,ev)=>{
+if(src!=='left'&&src!=='right')return;
+const said=src==='left',ok=said===isMatch;
+endTrial({correct:ok,note:ok?'Doğru':'Hata',rt:rtFrom(ev),cond:cond,resp:said?'MATCH':'DIFF',practice:!canCompare});
+};
+T.set(()=>endTrial({correct:false,note:'Cevapsız',cond:cond,resp:'NONE',practice:!canCompare}),2000);
+}
+},
+digit_span:{
+title:"10. Görsel Sayı Dizilimi Belleği",text:"Tek tek gösterilen sayıları aklınızda tutup aynı sırayla girin. Doğruda dizi uzar, hatada kısalır.",
+relNote:"Güvenilir modda her uzunlukta 2 hak verilir; 1 hak başarılıysa dizi uzar, 2 hak da başarısızsa test biter.",
+eval:"Ölçülen Bilişsel Parametre: İşitsel/Görsel Sözel Kısa Süreli Bellek Kapasitesi (Digit Span). Ardışık sayısal bilgiyi zihinde tutma sınırını ölçer.",formula:"Puan = En uzun doğru dizi × 100 − Hata × 20",openRel:true,
+score:r=>spanOf(r)*100-errCount(r)*20,
+extra:r=>['Digit span: '+spanOf(r)],
+over:()=>!!S.ctx.dead,
+setup(){
+S.ctx.len=parseInt($('digit-length-select').value)||4;S.ctx.len0=S.ctx.len;
+S.ctx.tries=0;S.ctx.passes=0;S.ctx.dead=false;
+numpadGrid.innerHTML='';
+for(let i=1;i<=9;i++){const b=document.className='num-btn';b.textContent=i;const n=i;b.addEventListener('pointerdown',e=>input('num:'+n,e));numpadGrid.appendChild(b);}
+},
+trial(){
+const L=S.ctx.len,seq=[];
+if(S.open)statTrials.textContent='Uzunluk '+L+' · hak '+(S.ctx.tries+1)+'/2';
+while(seq.length<L){const c=rnd(9)+1;if(seq[seq.length-1]!==c)seq.push(c);}
+const entered=[];
+let i=0;
+const adv=ok=>{
+const c=S.ctx;
+if(!S.rel){c.len=ok?Math.min(12,c.len+1):Math.max(2,c.len-1);return;}
+c.tries++;if(ok)c.passes++;
+if(c.tries>=2){if(c.passes>0){if(c.len>=12)c.dead=true;else c.len++;}else c.dead=true;c.tries=0;c.passes=0;}
+};
+const show=()=>{
+if(i>=L){
+circle.style.display='none';numpadGrid.style.display='grid';
+S.resp=(src,ev)=>{
+if(src.indexOf('num:')!==0)return;
+const n=+src.slice(4),k=entered.length;
+entered.push(n);
+if(n!==seq[k]){adv(false);endTrial({correct:false,note:'Hatalı Dizi ('+seq.join('-')+')',cond:'L'+L,resp:entered.join('-'),delay:1000});}
+else if(entered.length===L){adv(true);endTrial({correct:true,note:'Doğru Dizi ('+seq.join('-')+')',rt:rtFrom(ev),cond:'L'+L,resp:entered.join('-'),delay:1000});}
+else beep(700,0.08);
+};
+S.t0=performance.now();S.waiting=true;
+return;
+}
+setCircle(50,42,{bg:'#222',color:'#00e5ff',text:seq[i],events:false});beep(600,0.1);
+T.set(()=>{circle.style.display='none';i++;T.set(show,400);},800);
+};
+T.set(show,800);
+}
+},
+sprint_ball:{
+title:"11. Saha Depar (Top Getirme)",text:"Sesli/görsel renk komutuna göre depar atın, geri dönüp ekrandaki daireye dokunun.",
+eval:"Ölçülen Bilişsel Parametre: İşitsel/Görsel Uyarana Tepki ve Motor Depar Süresi (Komut-Temas Toplam Süresi). Uyarının algılanması ile lokomotor hareket başlatma ve tamamlama hızını ölçer.",formula:FIELD_FORMULA,score:scRT(10),
+setup(){},
+trial(){delayThenPresent(()=>{
+const k=pick(KEYS);
+setCircle(50,42,{bg:COLORS[k].hex,color:'#000',text:COLORS[k].en});
+speak(COLORS[k].en);beep(COLORS[k].freq);
+S.resp=(src,ev)=>{if(src!=='circle')return;endTrial({correct:true,note:'Tamamlandı',rt:rtFrom(ev),cond:k.toUpperCase(),resp:'TAP'});};
+T.set(()=>endTrial({correct:false,note:'Süre aşımı',cond:k.toUpperCase(),resp:'NONE'}),20000);
+});}
+},
+agility_run:{
+title:"12. Renk Koni Çeviklik Deparı",text:"Yanan konuya depar atın ve dokunun.",
+eval:"Ölçülen Bilişsel Parametre: Yönlü Seçenekli Reaksiyon ve Kinetik Çeviklik. Görsel renk kodlamasını algılayıp doğru hedefe yönelme reaksiyonunu ölçer.",formula:FIELD_FORMULA,score:scRT(10),
+setup(){setGrid({labels:KEYS.map(k=>COLORS[k].en)});},
+trial(){delayThenPresent(()=>{
+const k=pick(KEYS);
+lightCone(k);speak(COLORS[k].en);beep(600);
+S.resp=(src,ev)=>{if(src.indexOf('cone:')!==0)return;const ok=src==='cone:'+k;endTrial({correct:ok,note:ok?'Doğru Koni':'Yanlış Koni',rt:rtFrom(ev),cond:k.toUpperCase(),resp:src.slice(5).toUpperCase()});};
+T.set(()=>endTrial({correct:false,note:'Cevapsız',cond:k.toUpperCase(),resp:'NONE'}),4000);
+});}
+},
+complex_agility:{
+title:"13. Karmaşık Çift Komut Deparı",text:"Sesli komut ile yanan koninin rengi EŞLEŞİRSE o koniye depar atıp dokunun; eşleşmezse HİÇBİR ŞEYE dokunmayın.",
+eval:"Ölçülen Bilişsel Parametre: Saha İçi Karar Verme ve İki Modelli (Ses/Görsel) Go/No-Go İnhibisyonu. Eşleşmeyen karmaşık uyarıcılarda deparı frenleme gücünü ölçer.",formula:FIELD_FORMULA,score:scRT(10),planK:[0.5,0.5],
+extra:r=>['Hatalı depar (Komisyon): '+r.filter(x=>x.condition==='NOGO'&&!x.correct).length,'Cevapsız depar (Omisyon): '+r.filter(x=>x.condition==='GO'&&!x.correct).length],
+setup(){setGrid({labels:KEYS.map(k=>COLORS[k].en)});},
+trial(){const match=S.ctx.plan[S.idx-1];delayThenPresent(()=>{
+const k=pick(KEYS),spoken=match?k:pick(KEYS.filter(x=>x!==k));
+const cond=match?'GO':'NOGO';
+lightCone(k);speak(COLORS[spoken].en);
+S.resp=(src,ev)=>{
+if(src.indexOf('cone:')!==0)return;
+const rt=rtFrom(ev),resp=src.slice(5).toUpperCase();
+if(!match)endTrial({correct:false,note:'Hatalı Depar',rt:rt,cond:cond,resp:resp});
+else{const ok=src==='cone:'+k;endTrial({correct:ok,note:ok?'Doğru Depar':'Yanlış Koni',rt:rt,cond:cond,resp:resp});}
+};
+if(match)T.set(()=>endTrial({correct:false,note:'Cevapsız',cond:cond,resp:'NONE'}),4000);
+else T.set(()=>endTrial({correct:true,note:'Doğru Frenleme',cond:cond,resp:'NONE'}),1500);
+});}
+},
+choice_react:{
+title:"14. Çoklu Seçenek Reaksiyon Deparı",text:"Üstte yazan renge ait koniye depar atıp dokunun.",
+eval:"Ölçülen Bilişsel Parametre: Çoklu Seçenekli Reaksiyon Süresi (Choice RT). Birden fazla uyaran/hedef arasında uyaranı eşleştirip eyleme geçme hızını ölçer.",formula:FIELD_FORMULA,score:scRT(10),
+setup(){setGrid({compact:true,allOn:true});},
+trial(){delayThenPresent(()=>{
+const k=pick(KEYS);
+setCircle(50,22,{wide:true,bg:'#222',color:'#fff',text:COLORS[k].en,events:false});
+S.resp=(src,ev)=>{if(src.indexOf('cone:')!==0)return;const ok=src==='cone:'+k;endTrial({correct:ok,note:ok?'Doğru Koni':'Yanlış Koni',rt:rtFrom(ev),cond:k.toUpperCase(),resp:src.slice(5).toUpperCase()});};
+T.set(()=>endTrial({correct:false,note:'Cevapsız',cond:k.toUpperCase(),resp:'NONE'}),4000);
+});}
+},
+visual_search:{
+title:"15. Görsel Arama & Depar",text:"Üstte gösterilen sembolü konilerin üzerinde bulun ve o koniye depar atıp dokunun. Semboller her denemede yer değiştirir.",
+eval:"Ölçülen Bilişsel Parametre: Görsel Arama (Visual Search) ve Hızlı Mekânsal Odaklanma. Karmaşık görsel alan içinde hedef sembolü tarayıp ayırt etme süresini ölçer.",formula:FIELD_FORMULA,score:scRT(10),
+setup(){setGrid({compact:true,allOn:true});},
+trial(){delayThenPresent(()=>{
+const syms=shuffle(SYMBOLS),target=pick(SYMBOLS);
+cones.forEach((c,i)=>{c.textContent=syms[i];});
+setCircle(50,22,{wide:true,bg:'#222',color:'#00e5ff',text:target,events:false});
+S.resp=(src,ev)=>{if(src.indexOf('cone:')!==0)return;const idx=KEYS.indexOf(src.slice(5)),ok=syms[idx]===target;endTrial({correct:ok,note:ok?'Doğru Sembol':'Yanlış Sembol',rt:rtFrom(ev),cond:target,resp:syms[idx]});};
+T.set(()=>endTrial({correct:false,note:'Cevapsız',cond:target,resp:'NONE'}),6000);
+});}
+},
+pvt:{
+title:"16. Basit Reaksiyon (PVT)",text:"Gri 'BEKLE' dairesi yeşil 'DOKUN!' olunca olabildiğince hızlı dokunun. Yeşil olmadan dokunmayın (erken basma sayılır). Uyaran 1,5–4,5 sn rastgele aralıkla gelir.",
+eval:"Ölçülen Bilişsel Parametre: Sürdürülen Dikkat ve Uyanıklık (Psychomotor Vigilance Test). Rastgele aralıklarla gelen uyarana verilen basit reaksiyon hızı ile 500 ms üzeri gecikmeleri (Lapse / Dikkat Kaybı) ölçer.",formula:"Puan = Doğruluk×1000 − Ort.RT(ms)×2 − Hata×(200/Deneme sayısı) (alıştırma hariç)",score:scRT(0.5),
+extra:r=>{
+const rts=rtsOf(r),fs=Math.max.apply(null,[0].concat(r.map(x=>exNum(x,'FS')||0)));
+return['Lapse (>500 ms gecikme): '+rts.filter(x=>x>500).length,'Erken basma (Erken Erken Başlatma): '+fs];
+},
+setup(){S.ctx.fs=0;},
+trial(){
+const run=()=>{
+setCircle(50,42,{bg:'#333',color:'#999',text:'BEKLE'});
+S.early=()=>{S.ctx.fs++;fb(false);beep(150,0.2);T.clear();run();};
+T.set(()=>present(()=>{
+S.early=null;
+setCircle(50,42,{bg:'#00e676',color:'#000',text:'DOKUN!'});
+S.resp=(src,ev)=>{if(src!=='circle')return;endTrial({correct:true,note:'Tepki',rt:rtFrom(ev),cond:'PVT',resp:'TAP',extra:'FS='+S.ctx.fs});};
+T.set(()=>endTrial({correct:false,note:'Cevapsız (>3 sn)',cond:'PVT',resp:'NONE',extra:'FS='+S.ctx.fs}),3000);
+}),1500+rnd(3000));
+};
+run();
+}
+},
+stopsignal:{
+title:"17. Stop-Signal Testi",text:"Ok yönüne ilgili butona basın. Ok KIRMIZIYA dönerse hiçbir şeye BASMAYIN. Kırmızıya dönme anı her seferinde değişir ve başarınıza göre kolaylaşıp zorlaşır.",
+eval:"Ölçülen Bilişsel Parametre: Eylem Durdurma Hızı (Stop-Signal Reaction Time - SSRT). Başlatılmış bir motor komutun beyin tarafından durdurulması için geçen gizil süreyi (ms) ölçer.",formula:"Puan = Go doğruluğu×500 + Durdurma başarısı×500 − Go ort.RT/10 (alıştırma hariç)",planK:[0.75,0.75],
+score:r=>{const g=r.filter(x=>x.condition==='GO'),s=r.filter(x=>x.condition==='STOP');return accOf(g)*500+accOf(s)*500-(meanRT(g)||0)/10;},
+extra:r=>{
+const s=stopStats(r);
+return['Durdurma başarısı: %'+Math.round((1-s.pr)*100)+' ('+(s.st.length-s.fails.length)+'/'+s.st.length+')','Ort. durdurma gecikmesi (SSD): '+fmt(s.mSSD)+' ms','SSRT (Tahmini durdurma süresi): '+(s.ssrt==null?'–':Math.round(s.ssrt)+' ms')];
+},
+setup(){setDual("◀ SOL","SAĞ ▶");S.ctx.ssd=250;},
+trial(){const go=S.ctx.plan[S.idx-1];delayThenPresent(()=>{
+const left=Math.random()<0.5,correct=left?'LEFT':'RIGHT';
+setCircle(50,40,{wide:true,bg:'#222',color:'#00e5ff',text:left?'◀':'▶',events:false});
+if(go){
+S.resp=(src,ev)=>{if(src!=='left'&&src!=='right')return;const ans=src.toUpperCase(),ok=ans===correct;endTrial({correct:ok,note:ok?'Doğru':'Yön hatası',rt:rtFrom(ev),cond:'GO',resp:ans});};
+T.set(()=>endTrial({correct:false,note:'Cevapsız (omisyon)',cond:'GO',resp:'NONE'}),1500);
+}else{
+const ssd=S.ctx.ssd;
+T.set(()=>{circle.style.backgroundColor='#ff1744';circle.style.color='#fff';},ssd);
+S.resp=(src,ev)=>{if(src!=='left'&&src!=='right')return;S.ctx.ssd=Math.max(50,ssd-50);endTrial({correct:false,note:'Durdurma başarısız',rt:rtFrom(ev),cond:'STOP',resp:src.toUpperCase(),extra:'SSD='+ssd});};
+T.set(()=>{S.ctx.ssd=Math.min(900,ssd+50);endTrial({correct:true,note:'Doğru durdurma',cond:'STOP',resp:'NONE',extra:'SSD='+ssd});},1250);
+}
+});}
+},
+taskswitch:{
+title:"18. Görev Değiştirme Testi",text:"Her denemede üstte hangi kuralın geçerli olduğu yazar. RENK kuralı: Kırmızı = SOL, Mavi = SAĞ. ŞEKİL kuralı: Daire = SOL, Kare = SAĞ. Kural bazen değişir.",
+eval:"Ölçülen Bilişsel Parametre: Bilişsel Esneklik ve Değiştirme Maliyeti (Switch Cost). Değişen zihinsel kurallar arasında geçiş yaparken oluşan reaksiyon yavaşlamasını ölçer.",formula:RT_FORMULA,score:scRT(2),planK:[0.5,0.5],
+extra:r=>{
+const sw=r.filter(x=>x.condition==='SWITCH'),rp=r.filter(x=>x.condition==='REPEAT');
+const a=med(rtsOf(sw)),b=med(rtsOf(rp));
+return['Geçiş medyan RT: '+fmt(a)+' ms','Tekrar medyan RT: '+fmt(b)+' ms','Geçiş Maliyeti: '+(a!=null&&b!=null?Math.round(a-b)+' ms':'–')];
+},
+setup(){setDual("SOL","SAĞ");S.ctx.rule=null;},
+trial(){
+const sw=S.ctx.plan[S.idx-1],c=S.ctx;
+let rule,cond;
+if(c.rule==null){rule=Math.random()<0.5?'RENK':'SEKIL';cond='FIRST';}
+else{rule=sw?(c.rule==='RENK'?'SEKIL':'RENK'):c.rule;cond=sw?'SWITCH':'REPEAT';}
+c.rule=rule;
+delayThenPresent(()=>{
+const red=Math.random()<0.5,round=Math.random()<0.5;
+const correct=rule==='RENK'?(red?'LEFT':'RIGHT'):(round?'LEFT':'RIGHT');
+const hex=red?'#ff1744':'#29b6f6';
+setCircle(50,40,{wide:true,bg:'#222',color:hex,events:false});
+const label=rule==='RENK'?'RENK':'ŞEKİL';
+const hint=rule==='RENK'?'Kırmızı = SOL · Mavi = SAĞ':'Daire = SOL · Kare = SAĞ';
+circle.innerHTML='<div style="text-align:center"><div style="font-size:.95rem;letter-spacing:3px;color:#fff;font-weight:900">'+label+'</div><div style="font-size:3rem;line-height:1.1;color:'+hex+'">'+(round?'●':'■')+'</div><div style="font-size:.65rem;letter-spacing:0;color:#aaa;font-weight:normal">'+hint+'</div></div>';
+S.resp=(src,ev)=>{if(src!=='left'&&src!=='right')return;const ans=src.toUpperCase(),ok=ans===correct;endTrial({correct:ok,note:ok?'Doğru':'Hata',rt:rtFrom(ev),cond:cond,resp:ans,extra:rule});};
+T.set(()=>endTrial({correct:false,note:'Cevapsız',cond:cond,resp:'NONE',extra:rule}),3000);
+});
+}
+},
+mot:{
+title:"19. Çoklu Nesne Takibi (MOT)",text:"8 top görünür; bazıları SARI işaretlenir. Sonra hepsi aynı renge döner ve 5 sn hareket eder. Hareket durunca hedef olduğunu düşündüğünüz topların hepsine dokunun. Hedef sayısı başarınıza göre artar (2–5).",
+eval:"Ölçülen Bilişsel Parametre: Dinamik Görsel Dikkat ve Çoklu Hedef Takibi. Hareketli ve karmaşık görsel alanda birden fazla bağımsız nesneyi eşzamanlı izleme kapasitesini ölçer.",formula:"Puan = Ort. doğru izlenen hedef × 200 (0–1000)",
+score:r=>Math.min(1000,mean(r.map(x=>parseInt(x.response)||0))*200),
+extra:r=>{
+const h=r.map(x=>parseInt(x.response)||0);
+return['Mükemmel deneme: '+r.filter(x=>x.correct).length+'/'+r.length,'Ort. doğru hedef: '+(mean(h)==null?'–':mean(h).toFixed(2))];
+},
+setup(){cvShow();S.ctx.nT=3;S.ctx.frame=null;},
+trial(){
+const c=S.ctx,W=S.cw,H=S.ch,n=8,nT=c.nT;
+const rad=Math.max(12,Math.min(W,H)/20),sp=Math.min(W,H)*0.4;
+const balls=[];
+for(let i=0;i<n;i++){
+let p,tries=0;
+do{p={x:rad+Math.random()*Math.max(1,W-2*rad),y:rad+Math.random()*Math.max(1,H-2*rad)};tries++;}
+while(tries<300&&balls.some(b=>Math.hypot(b.x-p.x,b.y-p.y)<rad*2.6));
+const a=Math.random()*Math.PI*2;
+balls.push({x:p.x,y:p.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,t:i<nT,s:false});
+}
+c.phase='cue';c.sel=0;
+const ball=(b,fill,ring)=>{
+cx.beginPath();cx.arc(b.x,b.y,rad,0,Math.PI*2);cx.fillStyle=fill;cx.fill();
+if(ring){cx.lineWidth=4;cx.strokeStyle=ring;cx.stroke();}
+};
+c.frame=dt=>{
+const W2=S.cw,H2=S.ch;
+if(c.phase==='move'){
+balls.forEach(b=>{
+b.x+=b.vx*dt;b.y+=b.vy*dt;
+if(b.x<rad){b.x=rad;b.vx=Math.abs(b.vx);}
+if(b.x>W2-rad){b.x=W2-rad;b.vx=-Math.abs(b.vx);}
+if(b.y<rad){b.y=rad;b.vy=Math.abs(b.vy);}
+if(b.y>H2-rad){b.y=H2-rad;b.vy=-Math.abs(b.vy);}
+});
+for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+const a=balls[i],b=balls[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
+if(d<rad*2&&d>0){
+const nx=dx/d,ny=dy/d,rv=(a.vx-b.vx)*nx+(a.vy-b.vy)*ny;
+if(rv<0){a.vx-=rv*nx;a.vy-=rv*ny;b.vx+=rv*nx;b.vy+=rv*ny;}
+const ov=rad*2-d;a.x-=nx*ov/2;a.y-=ny*ov/2;b.x+=nx*ov/2;b.y+=ny*ov/2;
+}
+}
+}
+cx.clearRect(0,0,W2,H2);
+balls.forEach(b=>{
+if(c.phase==='cue')ball(b,b.t?'#ffea00':'#4fc3f7',null);
+else if(c.phase==='move')ball(b,'#4fc3f7',null);
+else if(c.phase==='pick')ball(b,b.s?'#90caf9':'#4fc3f7',b.s?'#ffffff':null);
+else{
+if(b.t&&b.s)ball(b,'#00e676',null);
+else if(!b.t&&b.s)ball(b,'#ff1744',null);
+else if(b.t)ball(b,'#4fc3f7','#ffea00');
+else ball(b,'#4fc3f7',null);
+}
+});
+cx.fillStyle='#bbb';cx.font='14px sans-serif';cx.textAlign='center';
+const msg=c.phase==='cue'?'Sarı topları aklınızda tutun':c.phase==='move'?'Hedefleri takip edin...':c.phase==='pick'?('Hedefleri seçin ('+c.sel+'/'+nT+')'):'Sonuç';
+cx.fillText(msg,W2/2,22);
+};
+const finalize=ev=>{
+if(!S.waiting)return;
+const hits=balls.filter(b=>b.t&&b.s).length,perfect=hits===nT;
+c.phase='reveal';
+if(!isPractice()){
+if(perfect)c.nT=Math.min(5,nT+1);
+else if(hits<=nT-2)c.nT=Math.max(2,nT-1);
+}
+endTrial({correct:perfect,note:hits+'/'+nT+' hedef',rt:rtFrom(ev),cond:'T'+nT,resp:String(hits),delay:1800});
+};
+const pickFn=(src,ev)=>{
+if(!ev)return;
+const rc=cv.getBoundingClientRect(),x=ev.clientX-rc.left,y=ev.clientY-rc.top;
+let best=null,bd=1e9;
+balls.forEach(b=>{const d=Math.hypot(b.x-x,b.y-y);if(d<bd){bd=d;best=b;}});
+if(!best||bd>rad*2)return;
+best.s=!best.s;c.sel+=best.s?1:-1;beep(500,0.05);
+if(c.sel>=nT)finalize(ev);
+};
+T.set(()=>{c.phase='move';},2000);
+T.set(()=>{
+c.phase='pick';S.t0=performance.now();S.resp=pickFn;S.waiting=true;
+T.set(()=>finalize(null),20000);
+},7000);
+}
+},
+timing:{
+title:"20. Öngörü Zamanlaması (Anticipation)",text:"Nokta soldan sağa gider, ortadaki perdenin arkasında kaybolur ve görünmeden devam eder. Noktanın sağdaki turkuaz çizgiye ulaştığı ANDA ekrana dokunun. Üç farklı hız karışık gelir.",
+eval:"Ölçülen Bilişsel Parametre: Görsel-Mekânsal Zamanlama ve Hız Tahmini. Sabit hızla hareket edip gizlenen hedefin varış zamanını öngörme ve hassas motor temas zamanlamasını (ms sapma) ölçer.",formula:"Puan = 1000 − Ort. mutlak hata(ms)×2 (cevapsız deneme = 600 ms hata)",
+score:r=>Math.max(0,1000-mean(r.map(x=>x.rt==null?600:x.rt))*2),
+extra:r=>{
+const t=timingErrs(r);
+if(!t.errs.length)return['Geçerli dokunuş yok.'];
+return['Ort. mutlak hata: '+Math.round(mean(t.errs.map(Math.abs)))+' ms','Ort. yönlü hata: '+Math.round(mean(t.errs))+' ms (+geç / −erken)','İsabet (±100 ms): '+t.errs.filter(e=>Math.abs(e)<=100).length+'/'+r.length];
+},
+setup(){
+cvShow();S.ctx.frame=null;
+const n=S.practiceN+S.total;let a=[];
+while(a.length<n)a=a.concat(shuffle([1,2,3]));
+S.ctx.sp=a.slice(0,n);
+},
+trial(){
+const c=S.ctx,lvl=c.sp[S.idx-1],W=S.cw,H=S.ch;
+const x0=W*0.08,xl=W*0.85,xo=W*0.42,y=H*0.45;
+const v=W*[0,0.35,0.5,0.7][lvl];
+const arrive=(xl-x0)/v*1000;
+c.phase='wait';c.start=0;c.tt=0;c.msg='';
+c.frame=()=>{
+cx.clearRect(0,0,S.cw,S.ch);
+cx.strokeStyle='#333';cx.lineWidth=2;cx.beginPath();cx.moveTo(x0,y);cx.lineTo(W*0.95,y);cx.stroke();
+cx.fillStyle='#1b1b1b';cx.fillRect(xo,y-40,xl-xo-8,80);
+cx.strokeStyle='#444';cx.lineWidth=1;cx.strokeRect(xo,y-40,xl-xo-8,80);
+cx.strokeStyle='#00e5ff';cx.lineWidth=4;cx.beginPath();cx.moveTo(xl,y-50);cx.lineTo(xl,y+50);cx.stroke();
+const now=performance.now();
+let x=x0;
+if(c.phase!=='wait')x=x0+v*(now-c.start)/1000;
+const hide=c.phase==='run'&&x>=xo;
+if(!hide&&x<W+20){cx.beginPath();cx.arc(x,y,12,0,Math.PI*2);cx.fillStyle='#ffea00';cx.fill();}
+if(c.phase==='reveal'){
+const xt=x0+v*(c.tt-c.start)/1000;
+cx.beginPath();cx.arc(xt,y,16,0,Math.PI*2);cx.lineWidth=3;cx.strokeStyle=c.good?'#00e676':'#ff5252';cx.stroke();
+}
+cx.fillStyle='#bbb';cx.font='14px sans-serif';cx.textAlign='center';
+cx.fillText(c.phase==='wait'?'Hazır...':c.phase==='run'?'Nokta çizgiye ulaşınca dokunun':c.msg,S.cw/2,24);
+};
+T.set(()=>{
+c.start=performance.now();c.phase='run';S.t0=c.start;
+S.resp=(src,ev)=>{
+const now=performance.now();
+const tt=(ev&&ev.timeStamp>0&&ev.timeStamp<=now+5)?ev.timeStamp:now;
+const err=Math.round(tt-(c.start+arrive)),good=Math.abs(err)<=100;
+c.tt=tt;c.phase='reveal';c.good=good;
+c.msg=(err>0?'Geç ':'Erken ')+Math.abs(err)+' ms';
+endTrial({correct:good,note:c.msg,rt:Math.abs(err),cond:'V'+lvl,resp:String(err),delay:1400});
+};
+S.waiting=true;
+T.set(()=>{
+c.tt=performance.now();c.phase='reveal';c.good=false;c.msg='Dokunuş yok';
+endTrial({correct:false,note:'Cevapsız',cond:'V'+lvl,resp:'NONE',delay:1400});
+},arrive+1500);
+},600+rnd(900));
+}
+}
+};
+
+const AC={good:'#00e676',warn:'#ff5252',info:'#ffca28'};
+function rtBlock(r,M,C,A){
+const n=r.length,ok=okRows(r),rts=rtsOf(r),acc=n?ok.length/n:0;
+M.push(['Puanlanan Deneme',n],['Genel Doğruluk Oranı','%'+Math.round(acc*100)]);
+if(acc>=0.95)C('good','Yüksek Doğruluk (%'+Math.round(acc*100)+'): Hız-doğruluk dengesinde güvenli ve isabetli tepki profili.');
+else if(acc>=0.85)C('info','Kabul Edilebilir Doğruluk (%'+Math.round(acc*100)+'): '+(n-ok.length)+' adet hatalı tepki kaydedildi.');
+else C('warn','Düşük Doğruluk (%'+Math.round(acc*100)+'): Hata oranı yüksek. Doğruluğu artırmak için tepki hızından hafif ödün verilebilir.');
+
+if(!rts.length){C('warn','Geçerli Doğru Tepki Süresi Yok.');return null;}
+const m=mean(rts),md=med(rts),s=sd(rts),cv=s!=null?s/m:null;
+M.push(['Ortalama / Medyan RT',Math.round(m)+' / '+Math.round(md)+' ms'],['En Hızlı / En Yavaş',Math.min.apply(null,rts)+' / '+Math.max.apply(null,rts)+' ms'],['Standart Sapma (SD)',s==null?'–':Math.round(s)+' ms'],['Değişkenlik Katsayısı (CV)',cv==null?'–':'%'+Math.round(cv*100)]);
+A.prim={label:'Medyan RT',val:md,unit:'ms',low:true};
+A.cv=cv;
+
+if(cv!=null){
+if(cv<0.2)C('good','Düşük Tepki Değişkenliği (CV %'+Math.round(cv*100)+'): Reaksiyon süreleri denemeler arasında son derece kararlı ve istikrarlı.');
+else if(cv<=0.35)C('info','Orta Düzey Değişkenlik (CV %'+Math.round(cv*100)+'): Tepki sürelerinde kabul edilebilir düzeyde dalgalanma mevcut.');
+else C('warn','Yüksek Tepki Değişkenliği (CV %'+Math.round(cv*100)+'): Tepki sürelerinde belirgin tutarsızlık var. Anlık odak kayıpları veya dikkat dalgalanması göstergesi.');
+}
+
+if((m-md)/md>0.1)C('info','Asimetrik RT Dağılımı: Ortalama değer medyandan %'+Math.round((m-md)/md*100)+' yüksek. Birkaç aşırı yavaş tepki ortalamayı saptırdığından medyan RT temel alınmalıdır.');
+
+const fast=rts.filter(x=>x<150).length;
+if(fast>=2)C('warn','Erken Tepki / Tahmini Basma ('+fast+' deneme <150 ms): Uyarana reaksiyon vermeden tahmine dayalı motor başlatma tespit edildi.');
+
+if(rts.length>=12){
+const h=Math.floor(rts.length/2),a1=mean(rts.slice(0,h)),a2=mean(rts.slice(h)),d=(a2-a1)/a1;
+M.push(['Seans İlk Yarı / İkinci Yarı Ort.',Math.round(a1)+' / '+Math.round(a2)+' ms']);
+if(d>0.1)C('warn','Seans İçi Yavaşlama (%'+Math.round(d*100)+'): Seans ilerledikçe reaksiyon süresinde belirgin artış (zihinsel yorgunluk/uyarıcı düşüşü).');
+else if(d<-0.1)C('info','Seans İçi Hızlanma (%'+Math.round(-d*100)+'): Test ilerledikçe motor/bilişsel ısınma ve öğrenme etkisi.');
+else C('good','Seans Boyunca Stabil Hız: Seansın ilk ve ikinci yarısı arasında performans kaybı yok.');
+}
+
+const er=r.filter(x=>!x.correct&&x.rt!=null).map(x=>x.rt);
+if(er.length>=3&&mean(er)<m*0.9)C('warn','Erken/Aceleci Hata Eğilimi: Hatalı verilen tepkiler doğru tepkilerden belirgin şekilde hızlı; düşünmeden tepki verme baskın.');
+return{m:m,md:md,s:s,cv:cv,rts:rts};
+}
+
+function condBlock(r,M,C,A,name){
+const cg=r.filter(x=>x.condition==='CONGRUENT'),ig=r.filter(x=>x.condition==='INCONGRUENT');
+const cr=rtsOf(cg),ir=rtsOf(ig),ca=cg.length?okRows(cg).length/cg.length:0,ia=ig.length?okRows(ig).length/ig.length:0;
+M.push(['Uyumlu Koşul: Deneme / Doğruluk',cg.length+' / %'+Math.round(ca*100)],['Uyumsuz Koşul: Deneme / Doğruluk',ig.length+' / %'+Math.round(ia*100)],
+['Uyumlu Ort. / Medyan RT',cr.length?Math.round(mean(cr))+' / '+Math.round(med(cr))+' ms':'–'],
+['Uyumsuz Ort. / Medyan RT',ir.length?Math.round(mean(ir))+' / '+Math.round(med(ir))+' ms':'–']);
+
+if(cr.length&&ir.length){
+const eff=mean(ir)-mean(cr),rl=eff/mean(cr);
+A.eff=rl;
+M.push([name+' Maliyeti / Etkisi (Ort.)',Math.round(eff)+' ms (%'+Math.round(rl*100)+')'],[name+' Etkisi (Medyan)',Math.round(med(ir)-med(cr))+' ms']);
+if(eff<=0)C('info',name+' Etkisi Görülmedi: Uyumsuz çeldirici uyaran reaksiyon süresini yavaşlatmadı.');
+else if(rl<0.1)C('good','Düşük Çatışma Maliyeti (%'+Math.round(rl*100)+'): Çeldirici bilgiyi baskılama ve odaklanma filtrelemesi çok başarılı.');
+else if(rl<0.25)C('info','Orta Düzey Çatışma Maliyeti (%'+Math.round(rl*100)+', '+Math.round(eff)+' ms).');
+else C('warn','Yüksek Çatışma Maliyeti (%'+Math.round(rl*100)+', '+Math.round(eff)+' ms): Çelişkili çeldirici uyaranı çözmek motor tepkiyi belirgin şekilde yavaşlatıyor.');
+
+if(ca-ia>=0.15)C('warn','Uyumsuz Koşulda Yüksek Hata Oranı (%'+Math.round(ia*100)+' vs %'+Math.round(ca*100)+'): Çatışmalı ortam yalnızca reaksiyonu yavaşlatmıyor, hata üretilmesine de neden oluyor.');
+}
+}
+
+function ngAna(lab1,lab2){return function(r,M,C,A){
+rtBlock(r,M,C,A);
+const go=r.filter(x=>x.condition==='GO'),ng=r.filter(x=>x.condition==='NOGO');
+const com=ng.filter(x=>!x.correct).length,om=go.filter(x=>!x.correct).length;
+const cr=ng.length?com/ng.length:0,orr=go.length?om/go.length:0;
+M.push([lab1,com+'/'+ng.length+' (%'+Math.round(cr*100)+')'],[lab2,om+'/'+go.length+' (%'+Math.round(orr*100)+')']);
+
+if(cr>0.2)C('warn','Yüksek Komisyon Hatası (%'+Math.round(cr*100)+'): "DUR/NOGO" uyaranına rağmen hareket baskılanamadı. Motor inhibisyon kontrolü zayıf/dürtüsel.');
+else if(cr>0.1)C('info','Orta Düzey Komisyon Hatası (%'+Math.round(cr*100)+'): Zaman zaman baskılama hataları oluşuyor.');
+else C('good','Düşük Komisyon Hatası (%'+Math.round(cr*100)+'): "DUR" uyaranlarında motor tepki başarıyla baskılandı.');
+
+if(orr>0.1)C('warn','Yüksek Omisyon Hatası (%'+Math.round(orr*100)+'): "DOKUN/GO" uyarısı kaçırıldı. Anlık odak kaybı veya aşırı temkinli bekleme eğilimi.');
+};}
+
+function byCond(r,M,C,label){
+const g={};
+r.forEach(x=>{if(x.correct&&x.rt!=null){(g[x.condition]=g[x.condition]||[]).push(x.rt);}});
+const ks=Object.keys(g).filter(k=>g[k].length>=2).map(k=>({k:k,md:med(g[k]),n:g[k].length})).sort((a,b)=>a.md-b.md);
+if(ks.length<2)return;
+M.push([label+' Bazında Medyan RT',ks.map(x=>x.k+': '+Math.round(x.md)+' ms (n='+x.n+')').join(' · ')]);
+}
+
+function fieldNote(C){C('info','Saha Uygulaması Notu: Kaydedilen süre uyarının verilmesinden lokomotor temas anına kadar olan toplam süredir.');}
+
+function choiceAna(label){return function(r,M,C,A){
+rtBlock(r,M,C,A);
+const w=r.filter(x=>!x.correct&&x.response!=='NONE').length,miss=r.filter(x=>x.response==='NONE').length;
+M.push(['Yanlış Hedef Seçimi',w],['Cevapsız (Omisyon)',miss]);
+if(w>=2)C('warn',w+' Adet Yanlış Hedef Seçimi: Komutu yanlış işleme veya hedefi hatalı ayırma.');
+if(miss>=2)C('warn',miss+' Adet Cevapsız Deneme: Zaman aşımı veya dikkat kaybı.');
+byCond(r,M,C,label);fieldNote(C);
+};}
+
+function trailAna(kind){return function(r,M,C,A){
+const rd=trailRounds(r),done=rd.filter(x=>x.sec!=null);
+M.push(['Tamamlanan Puanlanan Tur',done.length+'/'+rd.length]);
+if(!done.length){C('warn','Tamamlanmış Puanlanan Tur Bulunmamaktadır.');return;}
+const secs=done.map(x=>x.sec),m=mean(secs);
+M.push(['Tur Süreleri',secs.map(x=>x.toFixed(1)+' sn').join(' · ')],['Ortalama Tur Süresi',m.toFixed(1)+' sn'],['En Hızlı Tur',Math.min.apply(null,secs).toFixed(1)+' sn']);
+A.prim={label:'Ort. Tur Süresi',val:m,unit:'sn',low:true};
+const err=rd.reduce((a,x)=>a+x.err,0);
+M.push(['Sıra Hatası',err]);
+if(err===0)C('good','Test Hatasız Tamamlandı.');
+else C(err>=3?'warn':'info',err+' Adet Sıra Hatası: Aceleci arama veya dizilim sırasını karıştırma.');
+
+const legs=trailAvgLegs(rd);
+if(legs.length){
+const lr=legs.map(l=>l.rt),lm=mean(lr),ls=sd(lr);
+const sorted=legs.slice().sort((a,b)=>b.rt-a.rt);
+M.push(['Aralıklar Ort. Geçiş Süresi',(lm/1000).toFixed(2)+' sn'],['En Yavaş 3 Hedef Arası',sorted.slice(0,3).map(l=>l.note+' '+(l.rt/1000).toFixed(2)+' sn').join(' · ')]);
+if(ls!=null){
+const pauses=legs.filter(l=>l.rt>lm+2*ls);
+if(pauses.length)C('info','Belirgin Duraksama Noktaları (Ort.+2SD): '+pauses.map(l=>l.note).join(', ')+'. Hedef tarama zorlaşmış.');
+}
+}
+};}
+
+const ANA={};
+ANA.gonogo=ngAna("Komisyon Hatası (DUR'da Hatalı Basma)","Omisyon Hatası (DOKUN'da Kaçırma)");
+ANA.complex_agility=function(r,M,C,A){ngAna('Komisyon Hatası (Eşleşmezken Depar)','Omisyon Hatası (Eşleşmede Tepkisizlik)')(r,M,C,A);fieldNote(C);};
+ANA.stroop=function(r,M,C,A){rtBlock(r,M,C,A);condBlock(r,M,C,A,'Stroop (Çatışma)');};
+ANA.simon=function(r,M,C,A){rtBlock(r,M,C,A);condBlock(r,M,C,A,'Simon (Mekânsal)');};
+ANA.flanker=function(r,M,C,A){rtBlock(r,M,C,A);condBlock(r,M,C,A,'Flanker (Çeldirici)');};
+ANA.antisaccade=function(r,M,C,A){
+rtBlock(r,M,C,A);
+const viol=r.filter(x=>!x.correct&&x.response!=='NONE').length;
+M.push(['Refleks İhlali (Işığa Hatalı Dokunma)',viol]);
+if(viol/r.length>0.2)C('warn','Yüksek Görsel Refleks İhlali: Işığa otomatik yönelme refleksi baskılanamadı.');
+else C('good','Düşük Refleks İhlali: Otomatik görsel yönelme başarıyla engellendi.');
+};
+ANA.trailA=trailAna('A');
+ANA.trailB=trailAna('B');
+ANA.memory=function(r,M,C,A){
+const sp=spanOf(r);
+A.prim={label:'Corsi Span',val:sp,unit:'',low:false};
+M.push(['Corsi Span (En Yüksek Doğru Seviye)',sp]);
+if(sp===0)C('warn','Doğru Seviye Tamamlanamadı.');
+else C('info','Görsel-Mekânsal Bellek Span Değeri: '+sp);
+};
+ANA.nback=function(r,M,C,A){
+const s=nbackStats(r);
+A.prim={label:"d′ (Ayırt Etme)",val:s.d,unit:'',low:false};
+M.push(['İsabet (Hit)',s.hits+'/'+s.nM],['Yanlış Alarm (False Alarm)',s.fa+'/'+s.nN],["d′ Sinyal Ayırt Etme Gücü",s.d.toFixed(2)],['Kriter / Karar Eşiği (c)',s.c.toFixed(2)]);
+if(s.d<0.5)C('warn',"Düşük d′ Gücü ("+s.d.toFixed(2)+"): Eşleşme ile eşleşmeme ayırt etme şansa yakın.");
+else C('good',"Yüksek d′ Gücü ("+s.d.toFixed(2)+"): Çalışma belleği güncelleme ve hedef ayırt etme başarılı.");
+};
+ANA.digit_span=function(r,M,C,A){
+const sp=spanOf(r);
+A.prim={label:'Digit Span',val:sp,unit:'',low:false};
+M.push(['Digit Span (En Uzun Doğru Dizi)',sp]);
+};
+ANA.sprint_ball=function(r,M,C,A){rtBlock(r,M,C,A);byCond(r,M,C,'Renk');fieldNote(C);};
+ANA.agility_run=choiceAna('Koni Rengi');
+ANA.choice_react=choiceAna('Koni Rengi');
+ANA.visual_search=choiceAna('Hedef Sembol');
+ANA.pvt=function(r,M,C,A){
+const st=rtBlock(r,M,C,A);
+const fs=Math.max.apply(null,[0].concat(r.map(x=>exNum(x,'FS')||0)));
+M.push(['Erken Basma (False Start)',fs]);
+if(st){
+const s=st.rts.slice().sort((a,b)=>a-b),lapses=s.filter(x=>x>500).length;
+M.push(['Lapse Sayısı (>500 ms Gecikme)',lapses+'/'+s.length+' (%'+Math.round(lapses/s.length*100)+')']);
+if(lapses>2)C('warn','Yüksek Lapse Sayısı: Sürdürülen dikkatte anlık kopmalar ve uyanıklık düşüşü.');
+else C('good','Düşük Lapse Sayısı: Dikkat seans boyunca yüksek uyanıklıkla sürdürüldü.');
+}
+};
+ANA.stopsignal=function(r,M,C,A){
+const s=stopStats(r);
+rtBlock(s.go,M,C,A);
+M.push(['Ort. Durdurma Gecikmesi (SSD)',s.mSSD==null?'–':Math.round(s.mSSD)+' ms'],['SSRT (Tahmini Durdurma Süresi)',s.ssrt==null?'–':Math.round(s.ssrt)+' ms']);
+if(s.ssrt!=null)A.prim={label:'SSRT',val:s.ssrt,unit:'ms',low:true};
+};
+ANA.taskswitch=function(r,M,C,A){
+rtBlock(r,M,C,A);
+const sw=r.filter(x=>x.condition==='SWITCH'),rp=r.filter(x=>x.condition==='REPEAT');
+const sr=rtsOf(sw),rr=rtsOf(rp);
+if(sr.length&&rr.length){
+const cost=med(sr)-med(rr);
+M.push(['Geçiş Maliyeti (Switch Cost)',Math.round(cost)+' ms']);
+if(cost>150)C('warn','Yüksek Geçiş Maliyeti: Kural değiştiğinde zihinsel adapte olma yavaş.');
+else C('good','Düşük Geçiş Maliyeti: Bilişsel esneklik ve kural değiştirme hızlı.');
+}
+};
+ANA.mot=function(r,M,C,A){
+const hits=r.map(x=>parseInt(x.response)||0);
+M.push(['Ort. Doğru Takip Edilen Hedef',mean(hits)==null?'–':mean(hits).toFixed(2)]);
+};
+ANA.timing=function(r,M,C,A){
+const t=timingErrs(r);
+if(t.errs.length){
+const ab=t.errs.map(Math.abs),mb=mean(ab),bias=mean(t.errs);
+M.push(['Ort. Mutlak Zamanlama Hatası',Math.round(mb)+' ms'],['Sistematik Yönlü Hata (+geç / −erken)',Math.round(bias)+' ms']);
+if(bias<-40)C('warn','Sistematik ERKEN Zamanlama Eğilimi: Hedef varış noktasına ulaşmadan motor tepki başlatılıyor.');
+else if(bias>40)C('info','Sistematik GEÇ Zamanlama Eğilimi: Hedef varış noktası geçildikten sonra tepki veriliyor.');
+else C('good','Düşük Yönlü Sapma: Zamanlama kestirimi oldukça dengeli.');
+}
+};
+
+function analyze(mod,r){
+const A={M:[],Cm:[],prim:null,cv:null,eff:null},C=(k,t)=>A.Cm.push({k:k,t:t});
+const isRel=r.length&&r[0].mode==='GUVENILIR';
+try{if(r.length&&ANA[mod])ANA[mod](r,A.M,C,A);}catch(e){C('warn','Analiz Hesaplamasında Hata Oluştu: '+e.message);}
+if(r.length&&!isRel)C('info','Hızlı Tarama Modu: Sonuçlar ön değerlendirme niteliğindedir. Kesin klinik/akademik ölçüm için Güvenilir Tam Seans tercih edilmelidir.');
+return A;
+}
+
+const DISCLAIMER=`
+📌 PSİKOMETRİK VE BİLİŞSEL DEĞERLENDİRME REHBERİ:
+1. Reaksiyon Süresi (RT): Uyarının sunumu ile fiziksel temasın başlaması arasındaki süredir (ms).
+2. Değişkenlik Katsayısı (CV = Standart Sapma / Ortalama): Zihinsel tutarlılığı ve performans istikrarını gösterir. Düşük değerler (%20 altı) yüksek odaklanmayı temsil eder.
+3. Komisyon Hatası (False Alarm): 'DUR / No-Go' uyarısına rağmen duramayıp basma hatasıdır. Motor inhibisyon (dürtüsel denetim) eksikliğini gösterir.
+4. Omisyon Hatası (Miss): Basılması gereken uyaranın kaçırılması veya cevapsız bırakılmasıdır. Anlık dikkat kayıplarını veya aşırı temkinli beklemeyi gösterir.
+5. Signal Detection Theory (d′ ve c): N-Back testinde d′ sinyali gürültüden ayırt etme gücünü, c ise karar verme eğilimini (muhafazakar/atılgan) temsil eder.
+6. SSRT (Stop-Signal Reaction Time): Başlatılmış bir eylemi iptal etmek için beynin ihtiyaç duyduğu gizil durdurma süresidir.
+7. Donanım ve Dokunmatik Toleransı: Cihaz ekran yenileme hızı ve tarayıcı gecikmeleri nedeniyle sonuçlarda ±15-30 ms ölçüm toleransı mevcuttur.
+`;
+
+function shortT(t){return t.replace(/^\d+\.\s*/,'');}
+function esc(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>');}
+
+function buildReport(id){
+const all=lsGet('spplab_sessions').filter(s=>s.rows&&s.rows.length&&s.rows[0].athleteId===id&&MODS[s.rows[0].module]);
+if(!all.length)return null;
+all.sort((a,b)=>a.rows[0].timestamp<b.rows[0].timestamp?-1:1);
+const byMod={};
+all.forEach(s=>{const k=s.rows[0].module;(byMod[k]=byMod[k]||[]).push(s);});
+const order=Object.keys(MODS).filter(k=>byMod[k]);
+const tests=order.map(k=>{
+const list=byMod[k],last=list[list.length-1],A=analyze(k,last.rows.filter(x=>!x.practice));
+const mode=last.rows[0].mode||'HIZLI';
+return{mod:k,title:MODS[k].title,mode:mode,date:last.rows[0].timestamp.slice(0,10),n:list.length,M:A.M,Cm:A.Cm,prim:A.prim,cv:A.cv,eff:A.eff};
+});
+const r0=all[all.length-1].rows[0];
+const good=[],warn=[];
+tests.forEach(t=>t.Cm.forEach(c=>{const line=shortT(t.title)+': '+c.t;if(c.k==='good')good.push(line);else if(c.k==='warn')warn.push(line);}));
+
+return{id:id,
+prof:'Yaş: '+(r0.age||'–')+' · Cinsiyet: '+(r0.gender||'–')+' · Branş: '+(r0.sport||'–')+' · Deneyim: '+(r0.experienceYears||'0')+' Yıl · El: '+(r0.dominantSide||'–')+' · Eğitim: '+(r0.education||'–')+' · Seviye: '+(r0.level||'–')+' · Görüş: '+(r0.vision||'–')+' · Kafein: '+(r0.caffeine||'–'),
+gen:new Date().toLocaleString('tr-TR'),tests:tests,good:good,warn:warn};
+}
+
+function reportHtml(R){
+const li=a=>a.length?'<ul>'+a.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<div class="rp-sub">Kayıt bulunamadı.</div>';
+let h='<div class="rp-title">SPPLab Bilişsel Performans Raporu</div><div>Katılımcı ID: <b>'+esc(R.id)+'</b></div><div class="rp-sub">'+esc(R.prof)+'</div><div class="rp-sub">Rapor Tarihi: '+esc(R.gen)+' · İşlenen Test: '+R.tests.length+'</div>';
+h+='<div class="rp-sec"><h4>Öne Çıkan Güçlü Bilişsel Parametreler</h4>'+li(R.good)+'</div>';
+h+='<div class="rp-sec"><h4>Geliştirilmesi Gereken Bilişsel Parametreler</h4>'+li(R.warn)+'</div>';
+h+='<div class="rp-sec"><h4>Test Bazında Detaylı Psikometrik Analizler</h4>';
+R.tests.forEach(t=>{
+h+='<div class="rp-card"><div class="rp-ct">'+esc(t.title)+'<span>Mod: '+esc(t.mode)+' · Tarih: '+esc(t.date)+'</span></div><table>'+t.M.map(m=>'<tr><td>'+esc(m[0])+'</td><td>'+esc(m[1])+'</td></tr>').join('')+'</table>';
+h+=t.Cm.map(c=>'<div class="rp-cm" style="border-color:'+AC[c.k]+'">'+esc(c.t)+'</div>').join('');
+h+='</div>';
+});
+h+='</div><div class="rp-note">'+esc(DISCLAIMER)+'</div>';
+return h;
+}
+
+function openReport(){
+const id=$('athlete-id').value.trim();
+if(!id){alert('Lütfen önce Sporcu/Katılımcı ID giriniz.');return;}
+const R=buildReport(id);
+if(!R){alert('Bu Katılımcı ID için kaydedilmiş test verisi bulunamadı.');return;}
+$('report-body').innerHTML=reportHtml(R);
+$('report-overlay').classList.add('open');$('report-overlay').scrollTop=0;
+}
+
+function readAthlete(){
+const id=$('athlete-id').value.trim().slice(0,32);
+const age=Number($('athlete-age').value),exp=Number($('athlete-exp').value);
+const gender=$('athlete-gender').value,sport=$('athlete-sport').value.trim().slice(0,32);
+const dominant=$('athlete-dominant').value,edu=$('athlete-edu').value;
+const level=$('athlete-level').value,vision=$('athlete-vision').value,caffeine=$('athlete-caffeine').value;
+
+if(!id){alert('Lütfen Katılımcı/Sporcu ID alanını doldurunuz.');$('athlete-id').focus();return null;}
+if(!age||age<5||age>99){alert('Lütfen geçerli bir yaş giriniz (5-99).');$('athlete-age').focus();return null;}
+if(!gender){alert('Lütfen Cinsiyet alanını seçiniz.');$('athlete-gender').focus();return null;}
+if(!sport){alert('Lütfen Branş alanını doldurunuz.');$('athlete-sport').focus();return null;}
+if(!dominant){alert('Lütfen Baskın El seçiminizi yapınız.');$('athlete-dominant').focus();return null;}
+if(isNaN(exp)||exp<0||exp>80){alert('Lütfen geçerli bir spor yılı giriniz (0-80).');$('athlete-exp').focus();return null;}
+if(!edu){alert('Lütfen Eğitim Düzeyi seçiniz.');$('athlete-edu').focus();return null;}
+if(!level){alert('Lütfen Yarışma Seviyesi seçiniz.');$('athlete-level').focus();return null;}
+if(!vision){alert('Lütfen Görüş Düzeltme durumunu seçiniz.');$('athlete-vision').focus();return null;}
+if(!caffeine){alert('Lütfen Kafein/Uyarıcı kullanım durumunu seçiniz.');$('athlete-caffeine').focus();return null;}
+
+return{id:id,age:age,exp:exp,gender:gender,sport:sport,dominant:dominant,edu:edu,level:level,vision:vision,caffeine:caffeine,screen:screen.width+'x'+screen.height+'@'+(window.devicePixelRatio||1),ua:navigator.userAgent};
+}
+
+function resetLayout(keepStats){
+T.clear();stopClock();cvStop();
+const mod=moduleSelect.value,m=MODS[mod];
+instructionCard.style.display='block';
+$('instr-eval').style.display='';$('instr-score-formula').style.display='';
+$('instr-title').textContent=m.title;$('instr-text').textContent=m.text+suffix(mod);
+$('instr-eval').textContent=m.eval;$('instr-score-formula').textContent=m.formula;
+$('opt-digit').style.display=mod==='digit_span'?'flex':'none';$('opt-nback').style.display=mod==='nback'?'flex':'none';
+[circle,zoneBox,dualButtons,spatialGrid,memoryGrid,numpadGrid,trailArea,cv].forEach(e=>e.style.display='none');
+circle.className='';circle.innerHTML='';gameArea.classList.remove('has-buttons');
+memoryGrid.innerHTML='';trailArea.innerHTML='';
+if(!keepStats){
+statTimer.textContent='0.00 s';statScore.textContent='0';statErrors.textContent='0';
+statTrials.textContent=openFor(m)?'–':('0/'+getCfg(mod)[1]);
+}
+}
+
+function startTest(){
+const athlete=readAthlete();if(!athlete)return;
+const mod=moduleSelect.value,m=MODS[mod];
+S.run++;S.active=true;S.mod=mod;S.athlete=athlete;S.rel=rel();
+S.rows=[];S.idx=0;S.waiting=false;S.resp=null;S.early=null;S.ctx={};
+const cf=getCfg(mod);
+S.practiceN=cf[0];S.total=cf[1];S.open=openFor(m);
+if(m.planK)S.ctx.plan=mkPlan(S.practiceN,S.total,m.planK[S.rel?1:0]);
+S.sessionId=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+resetLayout(false);
+instructionCard.style.display='none';
+$('opt-digit').style.display='none';$('opt-nback').style.display='none';
+startBtn.disabled=true;stopBtn.disabled=false;exportBtn.disabled=true;reportBtn.disabled=true;moduleSelect.disabled=true;modeSelect.disabled=true;
+m.setup();
+requestWake();
+startClock();
+nextTrial();
+}
+
+function endUI(){startBtn.disabled=false;stopBtn.disabled=true;moduleSelect.disabled=false;modeSelect.disabled=false;reportBtn.disabled=false;exportBtn.disabled=S.rows.length===0;}
+
+function stopTest(msg){
+S.active=false;S.run++;S.waiting=false;S.resp=null;S.early=null;
+T.clear();stopClock();releaseWake();
+if('speechSynthesis' in window)speechSynthesis.cancel();
+resetLayout(true);
+if(typeof msg==='string')$('instr-text').textContent=msg+' '+$('instr-text').textContent;
+endUI();
+}
+
+function finishTest(){
+if(!S.active)return;
+const elapsed=((performance.now()-S.clockStart)/1000).toFixed(1);
+S.active=false;S.run++;S.waiting=false;S.resp=null;S.early=null;
+T.clear();stopClock();releaseWake();
+const m=MODS[S.mod],r=S.rows.filter(x=>!x.practice),score=computeScore();
+const lines=['Mod: '+modeLbl(S.rel?'GUVENILIR':'HIZLI'),'Süre: '+elapsed+' sn','<b>Hesaplanan Puan: '+score+'</b>'];
+let extraHtml='';
+if(r.length){
+lines.push('Doğruluk: %'+Math.round(okRows(r).length/r.length*100));
+const rts=rtsOf(r);
+if(rts.length){
+lines.push('Ortalama RT: '+msSn(Math.round(mean(rts))),'Medyan RT: '+msSn(Math.round(med(rts))));
+}
+lines.push('Hata Sayısı: '+errCount(r));
+if(m.extra)Array.prototype.push.apply(lines,m.extra(r));
+try{
+const A=analyze(S.mod,r);
+if(A.Cm.length){
+extraHtml='<div style="margin-top:8px"><b>Psikometrik Değerlendirme Özet:</b></div>'+A.Cm.map(c=>'<div style="border-left:3px solid '+AC[c.k]+';padding:2px 6px;margin:3px 0;font-size:.74rem">'+esc(c.t)+'</div>').join('')+'<div style="color:#888;font-size:.7rem;margin-top:6px">Detaylı birleşik rapor için "Rapor" butonunu kullanınız.</div>';
+}
+}catch(e){}
+}
+resetLayout(true);
+$('instr-title').textContent="Test Tamamlandı!";
+$('instr-text').innerHTML=lines.join('<br>')+extraHtml;
+$('instr-eval').style.display='none';$('instr-score-formula').style.display='none';
+endUI();
+saveSession();
+}
+
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'[]');}catch(e){return[];}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}}
+function setSync(t){$('sync-status').textContent=t;}
+const COMPACT=['sessionId','timestamp','athleteId','age','gender','sport','dominantSide','experienceYears','education','level','vision','caffeine','module','mode','trial','practice','condition','response','rt','cum','correct','note','score','extra'];
+function compact(row){const o={};COMPACT.forEach(k=>{o[k]=row[k];});return o;}
+
+function saveSession(){
+if(!S.rows.length)return;
+let all=lsGet('spplab_sessions');
+all.push({sessionId:S.sessionId,rows:S.rows.map(compact)});
+all=all.slice(-40);
+while(all.length>1&&!lsSet('spplab_sessions',all))all.shift();
+if($('consent').checked&&API_URL){
+const q=lsGet('spplab_pending');q.push({sessionId:S.sessionId,rows:S.rows});lsSet('spplab_pending',q);
+flushPending();
+}else setSync($('consent').checked?'API_URL Tanımlı Değil: Veri Cihazda.':'Rıza İşaretlenmedi: Veri Cihazda.');
+}
+
+async function flushPending(){
+if(!API_URL||!$('consent').checked)return;
+const q=lsGet('spplab_pending');if(!q.length)return;
+const rest=[];
+for(const b of q){
+try{await fetch(API_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:API_TOKEN,sessionId:b.sessionId,rows:b.rows})});}
+catch(e){rest.push(b);}
+}
+lsSet('spplab_pending',rest);
+setSync(rest.length?(rest.length+' Oturum Bekliyor'):'Sunucuya Aktarıldı');
+}
+window.addEventListener('online',flushPending);
+
+const CSV_COLS=[['sessionId','Oturum_ID'],['timestamp','Zaman_Damgasi'],['version','Surum'],['athleteId','Sporcu_ID'],['age','Yas'],['gender','Cinsiyet'],['sport','Brans'],['dominantSide','Baskin_Taraf'],['experienceYears','Deneyim_Yili'],['education','Egitim_Duzeyi'],['level','Yarisma_Seviyesi'],['vision','Gorus_Duzeltme'],['caffeine','Kafein_Kullanimi'],['screen','Ekran'],['userAgent','Tarayici'],['module','Modul'],['mode','Mod'],['trial','Deneme'],['practice','Alistirma'],['condition','Kosul'],['response','Yanit'],['rt','Reaksiyon_veya_Aralik_ms'],['cum','Kumulatif_ms'],['correct','Dogru_Mu'],['note','Aciklama'],['extra','Ek_Bilgi'],['score','Hesaplanan_Puan']];
+
+function csvEsc(v){
+if(v===null||v===undefined)return'';
+let s=String(v);
+if(typeof v==='string'&&/^[=+\-@\t\r]/.test(s))s="'"+s;
+if(/[",;\n\r]/.test(s))s='"'+s.replace(/"/g,'""')+'"';
+return s;
+}
+
+function exportCSV(){
+if(!S.rows.length)return;
+const head=CSV_COLS.map(c=>c[1]).join(',');
+const body=S.rows.map(r=>CSV_COLS.map(c=>csvEsc(r[c[0]])).join(',')).join('\n');
+const blob=new Blob(["\uFEFF"+head+"\n"+body],{type:'text/csv;charset=utf-8'});
+const url=URL.createObjectURL(blob),a=document.createElement('a');
+a.href=url;a.download='SPPLab_'+(S.athlete?S.athlete.id:'data')+'_'+S.mod+'_'+new Date().toISOString().slice(0,10)+'.csv';
+document.body.appendChild(a);a.click();document.body.removeChild(a);
+setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+moduleSelect.addEventListener('change',()=>resetLayout(false));
+modeSelect.addEventListener('change',()=>resetLayout(false));
+startBtn.addEventListener('click',()=>{initAudio();startTest();});
+stopBtn.addEventListener('click',()=>stopTest());
+exportBtn.addEventListener('click',exportCSV);
+reportBtn.addEventListener('click',openReport);
+$('rep-close').addEventListener('click',()=>$('report-overlay').classList.remove('open'));$('rep-copy').addEventListener('click',()=>{
+const body=$('report-body').innerText;
+navigator.clipboard.writeText(body).then(()=>alert('Rapor panoya kopyalandı.')).catch(()=>alert('Kopyalama başarısız.'));
+});
+$('rep-print').addEventListener('click',()=>{try{window.print();}catch(e){alert('Yazdırma desteklenmiyor.');}});
+
+circle.addEventListener('pointerdown',e=>{
+if(S.active&&!S.waiting&&S.early){if(e.cancelable)e.preventDefault();S.early(e);return;}
+input('circle',e);
+});
+cv.addEventListener('pointerdown',e=>input('cv',e));
+$('antisaccade-left-zone').addEventListener('pointerdown',e=>input('zoneL',e));$('antisaccade-right-zone').addEventListener('pointerdown',e=>input('zoneR',e));
+btnLeft.addEventListener('pointerdown',e=>input('left',e));
+btnRight.addEventListener('pointerdown',e=>input('right',e));
+cones.forEach(c=>c.addEventListener('pointerdown',e=>input('cone:'+c.dataset.key,e)));
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&S.active)stopTest('Sekme arka plana alındığı için test durduruldu.');});
+
+resetLayout(false);
+flushPending();
+</script>
+</body>
+</html>
